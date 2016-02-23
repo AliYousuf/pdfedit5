@@ -23,9 +23,8 @@
  */
 // vim:tabstop=4:shiftwidth=4:noexpandtab:textwidth=80
 
-#ifndef _POPPLER_H_
-#define _POPPLER_H_
-
+#ifndef _XPDF_H_
+#define _XPDF_H_
 
 #include <poppler/Object.h>
 #include <poppler/Parser.h>
@@ -44,6 +43,7 @@
 // we can use globalParams.
 // If we want to use fonts correctly, globalParams->setupBaseFonts(NULL)
 // has to be called
+
 #include <poppler/GlobalParams.h>
 #include <poppler/Catalog.h>
 
@@ -51,7 +51,7 @@
 
 
 //=====================================================================================
-namespace poppler {
+namespace xpdf {
 //=====================================================================================
 
 /** Reference comparator class.
@@ -82,7 +82,7 @@ public:
 };
 
 /**
- * Poppler object deleter.
+ * Xpdf object deleter.
  */
 struct object_deleter
 {
@@ -98,11 +98,11 @@ struct object_deleter
  * 
  * @param obj Object to be freed.
  */
-void freePopplerObject (::Object* obj);
+void freeXpdfObject (::Object* obj);
 
 
 //=====================================================================================
-} // namespace poppler
+} // namespace xpdf
 //=====================================================================================
 
-#endif // _POPPLER_H_
+#endif // _XPDF_H_

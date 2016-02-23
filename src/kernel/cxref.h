@@ -31,6 +31,22 @@
 #include "kernel/static.h"
 
 #include "kernel/indiref.h"
+#include  "kernel/xpdf.h"
+
+/** State of reference type.
+ *
+ * Describes state of reference. Use *_REF defined values.
+ */
+typedef int RefState;
+
+/** Reference is unknown. */
+#define UNUSED_REF          0
+
+/** Reference is reserved, but not initialized yet. */
+#define RESERVED_REF        1
+
+/** Reference is known. */
+#define INITIALIZED_REF     2
 
 namespace pdfobjects
 {
@@ -195,7 +211,7 @@ protected:
 	 * there are some changes otherwise delegate to XRef::getTrailerDict.
 	 * Never deallocate returned object.
 	 */
-	virtual const Object *getTrailerDict()const 
+    virtual  Object *getTrailerDict()
 	{
 		if (!currTrailer)
 			return XRef::getTrailerDict();
@@ -393,6 +409,11 @@ public:
 	{
 		return needs_credentials;
 	}
+    /** Ckecks if given reference is known.
+      * @param ref Reference to examine.
+      *
+      */
+     virtual RefState knowsRefs(const Ref &ref)const;
 
 	/** Checks if given reference is known.
 	 * @param ref Reference to check.

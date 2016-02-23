@@ -26,17 +26,19 @@
 #include "kernel/static.h"
 #include <stdio.h>
 #include <errno.h>
+#include <poppler/Decrypt.h>
 #include "utils/debug.h"
 #include "kernel/streamwriter.h"
+
 
 //TODO use stream encoding
 
 void FileStreamWriter::putChar(int ch)
 {
-	size_t pos=getPos();
-	fputc(ch, f);
-	fflush(f);
-	setPos(pos+1);
+    size_t pos ; /*= Stream::getPos();*/
+//	fputc(ch, f);
+//	fflush(f);
+//    Stream::setPos(pos+1);
 }
 
 void FileStreamWriter::putLine(const char * line, size_t length)
@@ -46,13 +48,13 @@ using namespace debug;
 	if(!line)
 		return;
 
-	size_t pos=getPos();
+    size_t pos; /* =  Stream::getPos();*/
 	size_t totalWriten=0;
 	
 	// writes all data
 	while(totalWriten<length)
 	{
-		size_t writen=fwrite(line+totalWriten, sizeof(char), length-totalWriten, f);
+        size_t writen;/*= fwrite(line+totalWriten, sizeof(char), length-totalWriten);*/
 		if(!writen)
 		{
 			int err = errno;
@@ -61,10 +63,11 @@ using namespace debug;
 		}
 		totalWriten+=writen;
 	}
-	fputc(0xA, f);
+//    fputc(0xA);
 	totalWriten++;
-	fflush(f);
-	setPos(pos+totalWriten);
+//    fflush(f);
+//    Stream::setPos(pos+totalWriten,0);
+
 }
 
 bool FileStreamWriter::trim(size_t pos)
@@ -75,36 +78,36 @@ using namespace debug;
 	
 	// checks whether underlaying stream is limited and pos is in that limited
 	// part
-	if(limited && length<pos)
-	{
-		kernelPrintDbg(DBG_ERR, "Trimed data are behind limited area.");
-		return false;
-	}
+//    if(Stream::length < pos)
+//	{
+//		kernelPrintDbg(DBG_ERR, "Trimed data are behind limited area.");
+//		return false;
+//	}
 
 	flush();
-	size_t currPos=getPos();
+    size_t currPos ;/*= Stream::getPos();*/
 	
-	kernelPrintDbg(DBG_DBG, "Triming all data behind absolute file offset="<<start+pos);
+//    kernelPrintDbg(DBG_DBG, "Triming all data behind absolute file offset="<< BaseStream::start + pos);
 	
 	// truncates to contain first start+pos bytes
-	if(ftruncate(fileno(f), start+pos)==-1)
-	{
-		int err = errno;
-		kernelPrintDbg(DBG_ERR, "Unable to truncate trailing data from "<<start+pos<<
-				"B (\""<< strerror(err)<<"\")");
-	}
+//    if(ftruncate(fileno(f), Stream::start + pos )==-1)
+//	{
+//		int err = errno;
+////        kernelPrintDbg(DBG_ERR, "Unable to truncate trailing data from "<<BaseStream::start + pos<<
+////				"B (\""<< strerror(err)<<"\")");
+//	}
 	flush();
 
 	// sets position to original one or at the end if original is after file end
 	// (ftruncate doesn't change FILE stream position, but FileStream class does
 	// some buffering and so it may be invalidated)
-	if(currPos>start+pos)
-	{
-		setPos(0, -1);
-		kernelPrintDbg(DBG_DBG, "Original position in removed area. Removing to file end. Offset="<<getPos());
-	}
-	else
-		setPos(currPos);
+//    if(currPos>Stream::start+pos)
+//	{
+//		setPos(0, -1);
+////        kernelPrintDbg(DBG_DBG, "Original position in removed area. Removing to file end. Offset="<<BaseStream::getPos());
+//	}
+//	else
+//        Stream::setPos(currPos);
 
 	return true;
 }
@@ -118,23 +121,23 @@ using namespace debug;
 
 	kernelPrintDbg(DBG_DBG, "start="<<start<<" length="<<length);
 
-	setPos(start);
+//	setPos(start);
 	char buffer[BUFSIZ];
 	size_t read=0;
 	size_t totalWriten=0;
 
 	// copies content until there is something to read or length is fulfilled.
-	while((read=fread(buffer, sizeof(char), std::min((size_t)BUFSIZ, length-totalWriten), f))>0)
-	{
-		size_t chunkWriten=0, writen;
+    //while((read=fread(buffer, sizeof(char), std::min((size_t)BUFSIZ, length-totalWriten,file)))>0)
+    //{
+    //	size_t chunkWriten=0, writen;
 		// writes whole read chunk
-		while((writen=fwrite(buffer+chunkWriten, sizeof(char), read-chunkWriten, file))>0)
-			chunkWriten+=writen;
+    //	while((writen=fwrite(buffer+chunkWriten, sizeof(char), read-chunkWriten, file))>0)
+    //		chunkWriten+=writen;
 
-		totalWriten+=chunkWriten;
-	}
-	if(int err=ferror(f))
-		kernelPrintDbg(DBG_ERR, "error occured while stream file reading. Error code="<<err);
+    //	totalWriten+=chunkWriten;
+    //}
+    //if(int err=ferror(f))
+    //	kernelPrintDbg(DBG_ERR, "error occured while stream file reading. Error code="<<err);
 
 	kernelPrintDbg(DBG_INFO, totalWriten<<" bytes written to output file");
 

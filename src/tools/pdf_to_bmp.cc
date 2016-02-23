@@ -24,9 +24,9 @@
 #include <kernel/pdfedit-core-dev.h>
 #include <kernel/cpdf.h>
 #include <kernel/cpage.h>
-#include <splash/Splash.h>
-#include <splash/SplashBitmap.h>	
-#include <poppler/poppler/SplashOutputDev.h>
+#include <poppler/splash/Splash.h>
+#include <poppler/splash/SplashBitmap.h>
+#include <poppler/SplashOutputDev.h>
 
 #include <boost/program_options.hpp>
 #include <vector>

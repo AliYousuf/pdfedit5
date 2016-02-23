@@ -399,16 +399,13 @@ namespace {
 					//  Tj 
 					// if we want to do something with all operators (xml
 					// output) we have a problem
-					//
-					if (streamreader.eofOfActualStream())
-					{
-						if (our_change)
-							break;
-						boost::shared_ptr< ::Object> o(XPdfObjectFactory::getInstance(), xpdf::object_deleter());
-						streamreader.lookXpdfObject (*o);
-						if (o->isName (ContentsChangeTag::CHANGE_TAG_ID))
-							break;
-					}
+
+                    if (our_change)
+                        break;
+                        boost::shared_ptr< ::Object> o(XPdfObjectFactory::getInstance(), xpdf::object_deleter());
+                        streamreader.lookXpdfObject (*o);
+                        if (o->isName (ContentsChangeTag::CHANGE_TAG_ID))
+                        break;
 				}
 			}
 

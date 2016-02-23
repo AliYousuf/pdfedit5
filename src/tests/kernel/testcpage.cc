@@ -40,7 +40,7 @@
 boost::shared_ptr<CPage> 
 getPage (const char* fileName, boost::shared_ptr<CPdf> pdf, size_t pageNum)
 {
-	boost::scoped_ptr<PDFDoc> doc (new PDFDoc (new GString(fileName), NULL, NULL));
+    boost::scoped_ptr<PDFDoc> doc (new PDFDoc (new GooString(fileName), NULL, NULL));
 	
 	//
 	// Our stuff here

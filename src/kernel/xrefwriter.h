@@ -34,8 +34,11 @@
 
 #include "kernel/static.h"
 #include "kernel/cxref.h"
+#include <poppler/Stream.h>
 
 class StreamWriter;
+
+class Stream;
 
 namespace pdfobjects
 {
@@ -458,7 +461,7 @@ public:
 	 *
 	 * @see XRefWriter::getRevisionEnd for limitations.
 	 */
-	void cloneRevision(FILE * file)const;
+    void cloneRevision(FILE * file);
 
 	/** Returns size of given revision.
 	 * @param rev Revision to examine.
@@ -501,7 +504,7 @@ public:
 	 * XRef::fetch method.
 	 * 
 	 */ 
-	virtual ::Object * fetch(int num, int gen, ::Object * obj)const
+    virtual ::Object * fetch(int num, int gen, ::Object * obj)
 	{
 		// the newest revision may contain changes, so uses
 		// CXref implementation
@@ -529,10 +532,10 @@ public:
 	{
 		// if we are in newest revision, delegates to CXref
 		if(utils::isLatestRevision(*this))
-			return CXref::knowsRef(ref);
+            return knowsRefs(ref);
 				
 		// otherwise use XRef directly
-		return XRef::knowsRef(ref);
+        return knowsRefs(ref);
 	}
 
 	/** Returns current trailer dictionary.
@@ -542,7 +545,7 @@ public:
 	 * changed trailer. 
 	 * Otherwise delegates to XRef implementation.
 	 */
-	virtual const Object *getTrailerDict()const
+    virtual Object *getTrailerDict()
 	{
 		if(utils::isLatestRevision(*this))
 			return CXref::getTrailerDict();
@@ -598,7 +601,7 @@ public:
 	 * 
 	 * @return number of objects.
 	 */
-	virtual int getNumObjects()const 
+    virtual int getNumObjects()
 	{ 
 		if(!revision)
 			return CXref::getNumObjects();

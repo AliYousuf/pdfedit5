@@ -84,7 +84,7 @@
 
 //this includes <windows.h> - BEWARE of max min
 #include "kernel/pdfspecification.h"
-#include "kernel/poppler.h"
+#include "kernel/xpdf.h"
 
 #ifdef max
 	#undef max

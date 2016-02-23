@@ -87,7 +87,7 @@ public:
 	 * @return Type instance.
 	 */
 	static Type* 
-	getInstance(boost::shared_ptr<CPdf> pdf, const IndiRef & indirefParent, const Object & obj)
+    getInstance(boost::shared_ptr<CPdf> pdf, const IndiRef & indirefParent, Object & obj)
 	{
 		return new Type(pdf, obj, indirefParent);
 	}
@@ -102,7 +102,7 @@ public:
 	 * @return Type instance.
 	 */
 	static Type* 
-	getInstance(const Object & obj)
+    getInstance( Object & obj)
 	{
 		return new Type (obj);
 	}
@@ -228,10 +228,10 @@ public:
 	 *
 	 * @return CDict instance.
 	 */
-	static CDict * getInstance(const Object & obj)
+    static CDict * getInstance( Object & obj)
 	{
 		// checks type
-		if(obj.getType()!=objDict)
+        if(obj.getType()!=objDict)
 			throw ElementBadTypeException("CDict");
 
 		return new CDict(obj);
@@ -281,7 +281,7 @@ public:
 	 *
 	 * @return CArray instance.
 	 */
-	static CArray * getInstance(const Object & obj)
+    static CArray * getInstance(Object & obj)
 	{
 		// checks type
 		if(obj.getType()!=objArray)

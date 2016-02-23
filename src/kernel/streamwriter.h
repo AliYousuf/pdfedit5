@@ -25,6 +25,7 @@
 
 
 #include "kernel/static.h"
+#include <poppler/Hints.h>
 
 /**
  * @file streamwriter.h
@@ -48,8 +49,12 @@ class StreamWriter: virtual public BaseStream
 public:
 	/** Constructor with dictionary object.
 	 * @param dictA Object where to store stream dictionary.
+     *
 	 */
-	StreamWriter(Object * dictA):BaseStream(dictA){}
+    StreamWriter(Object * dictA,Goffset A):BaseStream(dictA, A){}
+
+//    FileStream(GooFile* fileA, Goffset startA, GBool limitedA,
+//           Goffset lengthA, Object *dictA);
 	
 	/** Puts character at current position.
 	 * @param ch Character to put to the stream.
@@ -121,11 +126,17 @@ public:
 	 * and initializes FileStream super type with fA, startA, limitedA and dictA
 	 * parameters.
 	 */
-	FileStreamWriter(FILE *fA, Guint startA, GBool limitedA, Guint lengthA, Object * dictA)
-		: BaseStream(dictA),
-		  StreamWriter(dictA),
-		  FileStream(fA, startA, limitedA, lengthA, dictA) 
-		  {}
+    //‘Fil:FileStream(FILE*&,    Guint&,       GBool&,         Guint&,       Object*&)’
+
+    FileStreamWriter(GooFile* fA, Goffset startA, GBool limitedA,  Goffset lengthA, Object *dictA)
+        : BaseStream(dictA, lengthA),
+          StreamWriter(dictA, lengthA),
+          FileStream(fA, startA, limitedA, lengthA, dictA)
+          {
+
+          }
+
+
 
 	/** Destructor for FileStreamWriter.
 	 *
@@ -192,7 +203,7 @@ public:
 	 */
 	virtual void flush()const
 	{
-		fflush(f);
+
 	}
 
 	/** Duplicates content to given file.

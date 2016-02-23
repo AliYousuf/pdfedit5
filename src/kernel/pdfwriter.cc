@@ -47,6 +47,7 @@ const char * XREF_KEYWORD="xref";
 const char * STARTXREF_KEYWORD="startxref";
 
 const char * EOFMARKER="%%EOF";
+class Dict;
 
 namespace pdfobjects
 {
@@ -61,10 +62,10 @@ namespace utils
  * @return Number of the filters present in the stream or -1 if some of
  * them is not correct.
  */
-int getFiltersFromStream(const Object &obj, std::vector<std::string>& filters)
+int getFiltersFromStream(Object &obj, std::vector<std::string>& filters)
 {
 	assert(obj.isStream());
-	const Dict * streamDict = obj.streamGetDict();
+    Dict * streamDict = obj.streamGetDict();
 	Object filter;
 	streamDict->lookup("Filter", &filter);
 	if(filter.isNull())
@@ -76,7 +77,7 @@ int getFiltersFromStream(const Object &obj, std::vector<std::string>& filters)
 	}
 	if(filter.isArray())
 	{
-		const Array * array = filter.getArray();
+        Array * array = filter.getArray();
 		int count=0;
 		for(int i=0; i<array->getLength();++i, ++count)
 		{
@@ -142,13 +143,13 @@ boost::shared_ptr<NullFilterStreamWriter> NullFilterStreamWriter::getInstance()
 	return instance;
 }
 
-bool NullFilterStreamWriter::supportObject(UNUSED_PARAM const Object& obj)const
+bool NullFilterStreamWriter::supportObject(UNUSED_PARAM Object& obj)const
 {
 	assert(obj.isStream());
 	return true;
 }
 
-unsigned char * NullFilterStreamWriter::null_extractor(const Object&obj, size_t& size)
+unsigned char * NullFilterStreamWriter::null_extractor(Object&obj, size_t& size)
 {
 	assert(obj.isStream());
 	boost::shared_ptr< ::Object> lenghtObj(XPdfObjectFactory::getInstance(), xpdf::object_deleter());
@@ -173,7 +174,7 @@ unsigned char * NullFilterStreamWriter::null_extractor(const Object&obj, size_t&
 	return buffer;
 }
 
-void NullFilterStreamWriter::compress(const Object& obj, Ref* ref, StreamWriter& outStream)const
+void NullFilterStreamWriter::compress(Object& obj, Ref* ref, StreamWriter& outStream)const
 {
 	assert(obj.isStream());
 	CharBuffer charBuffer;
@@ -186,14 +187,15 @@ void NullFilterStreamWriter::compress(const Object& obj, Ref* ref, StreamWriter&
 	outStream.putLine(charBuffer.get(), size);
 }
 
-void ZlibFilterStreamWriter::update_dict(const Object& obj)
+void ZlibFilterStreamWriter::update_dict(Object& obj)
 {
 	assert(obj.isStream());
 	Object filterArray, filterName;
 	filterName.initName("FlateDecode");
 	filterArray.initArray(obj.getDict()->getXRef());
 	filterArray.arrayAdd(&filterName);
-	obj.getStream()->getBaseStream()->dictAdd(copyString("Filter"), &filterArray);
+    dict->add(copyString("Filter"), &filterArray);
+
 }
 
 boost::shared_ptr<ZlibFilterStreamWriter> ZlibFilterStreamWriter::getInstance()
@@ -205,7 +207,7 @@ boost::shared_ptr<ZlibFilterStreamWriter> ZlibFilterStreamWriter::getInstance()
 	return instance;
 }
 
-bool ZlibFilterStreamWriter::supportObject(const Object& obj)const
+bool ZlibFilterStreamWriter::supportObject(Object& obj)const
 {
 	assert(obj.isStream());
 	std::vector<std::string> filters; 
@@ -293,7 +295,7 @@ out_error:
 	return NULL;
 }
 
-unsigned char* ZlibFilterStreamWriter::deflate(const Object& obj, size_t& size)
+unsigned char* ZlibFilterStreamWriter::deflate(Object& obj, size_t& size)
 {
 	assert(obj.isStream());
 	unsigned char *rawBuffer, *deflateBuff = NULL;
@@ -324,7 +326,7 @@ out:
 	return deflateBuff;
 }
 
-void ZlibFilterStreamWriter::compress(const Object& obj, Ref* ref, StreamWriter& outStream)const
+void ZlibFilterStreamWriter::compress(Object& obj, Ref* ref, StreamWriter& outStream)const
 {
 	CharBuffer charBuffer;
 	assert(obj.isStream());
@@ -379,7 +381,7 @@ void FilterStreamWriter::setDefaultStreamWriter(const boost::shared_ptr<FilterSt
  * @param filters Container of supported filter writers.
  * @return Appropriate filter writer or NULL.
  */
-boost::shared_ptr<FilterStreamWriter> lookupFilterStreamWriter(const Object& obj, 
+boost::shared_ptr<FilterStreamWriter> lookupFilterStreamWriter(Object& obj,
 		FilterStreamWriter::WritersList& filters)
 {
 	FilterStreamWriter::WritersList::const_iterator i;
@@ -392,7 +394,7 @@ boost::shared_ptr<FilterStreamWriter> lookupFilterStreamWriter(const Object& obj
 	return boost::shared_ptr<FilterStreamWriter>();
 }
 
-boost::shared_ptr<FilterStreamWriter> FilterStreamWriter::getInstance(const Object& objStream)
+boost::shared_ptr<FilterStreamWriter> FilterStreamWriter::getInstance(Object& objStream)
 {
 	if(!objStream.isStream())
 		throw ElementBadTypeException("");
@@ -418,7 +420,7 @@ boost::shared_ptr<FilterStreamWriter> FilterStreamWriter::getInstance(const Obje
  * Given xpdf object data (like stream or string) can contain unprintable or 
  * 0 bytes.
  */
-void writeObject(const ::Object & obj, StreamWriter & stream, ::Ref* ref, bool indirect)
+void writeObject(::Object & obj, StreamWriter & stream, ::Ref* ref, bool indirect)
 {
 using namespace boost;
 using namespace std;
@@ -460,14 +462,13 @@ using namespace std;
 	}
 }
 
-void IPdfWriter::writeHeader(const char* version, StreamWriter &stream)
+void IPdfWriter::writeHeader( StreamWriter &stream)
 {
 	// move to the beggining
 	stream.reset();
 	stream.setPos(stream.getStart());
 
 	std::string header=PDFHEADER;
-	header+=version;
 	stream.putLine(header.c_str(), header.size());
 
 	// PDF specification suggests that header line should be followed by comment
@@ -553,7 +554,7 @@ using namespace boost;
  *
  * Get rid all entries which could come from xref stream dictionary.
  */
-void stripXRefStreamFields(const Object &trailer)
+void stripXRefStreamFields( Object &trailer)
 {
 	static const char *fieldsToRemove [] = {"Type", "Index", "W", "Length", "Filter", "DecodeParms", NULL};
 	for(int i=0; fieldsToRemove[i]; i++) 
@@ -562,14 +563,14 @@ void stripXRefStreamFields(const Object &trailer)
 		if(trailer.dictLookupNF(fieldsToRemove[i], &o)->getType()!=objNull)
 		{
 			utilsPrintDbg(debug::DBG_INFO, "Removing "<<fieldsToRemove[i]<<" entry from trailer");
-			Object *old = trailer.dictDel(fieldsToRemove[i]);
-			xpdf::freeXpdfObject(old);
+            dict->remove(fieldsToRemove[i]);//trailer.dictDel(fieldsToRemove[i]);
+
 		}
 		o.free();
 	}
 }
 
-size_t OldStylePdfWriter::writeTrailer(const Object & trailer,const PrevSecInfo &prevSection, StreamWriter & stream, size_t off)
+size_t OldStylePdfWriter::writeTrailer(Object & trailer,const PrevSecInfo &prevSection, StreamWriter & stream, size_t off)
 {
 	using namespace std;
 	using namespace debug;
@@ -718,24 +719,20 @@ size_t OldStylePdfWriter::writeTrailer(const Object & trailer,const PrevSecInfo 
 		// trailers and the first one never contains Prev. However
 		// this can be problem if we had incremental update from 
 		// other party which uses stream trailers for all.
-		Object * prev=trailer.dictDel("Prev");
-		if(prev)
-			xpdf::freeXpdfObject(prev);
-		utilsPrintDbg(DBG_DBG, "No previous xref section. Removing Trailer::Prev.");
+        dict->remove("Prev");
+
 	}else
 	{
 		Object newPrev;
 		newPrev.initInt(prevSection.xrefPos);
 		char * key=copyString("Prev");
-		Object * originalPrev=trailer.dictUpdate(key, &newPrev);
-		if(originalPrev)
-		{
-			// value has been set to something different, we have to deallocate it
-			// and to free key, because it is not stored in update
-			utilsPrintDbg(DBG_DBG, "Removing old Trailer::Prev="<<originalPrev->getInt());
-			free(key);
-			xpdf::freeXpdfObject(originalPrev);
-		}
+        dict->add(key, &newPrev);
+
+        // value has been set to something different, we have to deallocate it
+        // and to free key, because it is not stored in update
+
+        free(key);
+
 		utilsPrintDbg(DBG_DBG, "Linking to previous xref section. Trailer::Prev="<<newPrev.getInt());
 	}
 
@@ -744,12 +741,8 @@ size_t OldStylePdfWriter::writeTrailer(const Object & trailer,const PrevSecInfo 
 	// to the additional objects in xref stream. PDF>=1.5 capable readers
 	// reads both of them and so we have to remove XRefStm for later 
 	// revisions to prevent from confusions.
-	Object * xrefStm = trailer.dictDel("XRefStm");
-	if(xrefStm)
-	{
-		utilsPrintDbg(DBG_DBG, "Removing old Trailer::XRefStm.");
-		xpdf::freeXpdfObject(xrefStm);
-	}
+
+    dict->remove("XRefStm");
 
 	// some documents (e.g. those generated by Word with Acrobad 9 pdf printer)
 	// generate strange xref layout (xref table with trailer containig additional
@@ -763,15 +756,10 @@ size_t OldStylePdfWriter::writeTrailer(const Object & trailer,const PrevSecInfo 
 	Object newSize;
 	newSize.initInt(std::max(prevSection.entriesNum, (size_t)(maxObjNum + 1)));
 	char * key=copyString("Size");
-	Object * originalSize=trailer.dictUpdate(key, &newSize);
-	if(originalSize)
-	{
-		// value has been set to something different, we have to deallocate it
-		// and to free key, because it is not stored in update
-		utilsPrintDbg(DBG_DBG, "Removing old Trailer::Size="<<originalSize->getInt());
-		gfree(key);
-		xpdf::freeXpdfObject(originalSize);
-	}
+    dict->add(key, &newSize);
+
+    gfree(key);
+
 	utilsPrintDbg(DBG_DBG, "Setting Trailer::Size="<<newSize.getInt());
 
 	// stores changed trailer to the file
@@ -909,7 +897,7 @@ using namespace debug;
 			new FileStreamWriter(file, 0, false, 0, &dict));
 
 	// Writes header with the same PDF version
-	pdfWriter->writeHeader(getPDFVersion(), *outputStream);
+    pdfWriter->writeHeader(*outputStream);
 	
 	IPdfWriter::ObjectList objectList;
 	while (fillObjectList(objectList, writeBatchCount)>0)

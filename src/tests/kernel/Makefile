@@ -7,7 +7,7 @@ include $(REL_ADDR)/Makefile.rules
 
 # We have to add libxpdf here again here because libxpdf-extra depends
 # on some of its classes.
-MANDATORY_LIBS    += $(CPPUNIT_LIBS) -L$(XPDFROOT)/xpdf -lxpdf-extra -lxpdf
+MANDATORY_LIBS    += $(CPPUNIT_LIBS) -L$(POPPLERROOT)/poppler  -lpoppler
 MANDATORY_INCPATH += $(CPPUNITPATH)
 
 SOURCES = testcobjectsimple.cc \
@@ -33,8 +33,8 @@ HEADERS = testcobject.h \
 	  testparams.h
 DEP_LIBS = $(KERNELROOT)/libkernel.a \
 	   $(UTILSROOT)/libutils.a \
-	   $(XPDFROOT)/xpdf/libxpdf.a $(XPDFROOT)/fofi/libfofi.a \
-	   $(XPDFROOT)/goo/libGoo.a $(XPDFROOT)/splash/libsplash.a
+	   $(POPPLERROOT)/poppler/libpoppler.a $(POPPLERROOT)/fofi/libfofi.a \
+	   $(POPPLERROOT)/goo/libGoo.a $(POPPLERROOT)/splash/libsplash.a
 
 OBJECTS = $(SOURCES:.cc=.o)
 TARGET   = kernel_tests

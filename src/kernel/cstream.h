@@ -28,6 +28,7 @@
 // all basic includes
 #include "kernel/static.h"
 #include "kernel/cdict.h"
+#include "kernel/xpdf.h"
 
 
 //=====================================================================================
@@ -111,13 +112,13 @@ public:
 	 * @param o		Xpdf object. 
 	 * @param rf	Indirect id and gen id.
 	 */
-	CStream (boost::weak_ptr<CPdf> p, const Object& o, const IndiRef& rf);
+    CStream (boost::weak_ptr<CPdf> p, Object& o, const IndiRef& rf);
 
 	/**
 	 * Constructor. Stream will not be associated with a pdf.
 	 * @param o	Xpdf object. 
 	 */
-	CStream (const Object& o);
+    CStream (Object& o);
 
 	/**
 	 * Constructor. Stream will not be associated with a pdf.
@@ -359,7 +360,7 @@ public:
 	}
 
 	//
-	// Parsing (use friend CStreamsXpdfReader)
+    // Parsing (use friend sXpdfReader)
 	//
 private:
 	
@@ -415,7 +416,7 @@ public:
 	/**
 	 * Destructor.
 	 */
-	~CStream ();
+    ~CStream ();
 
 
 

@@ -29,7 +29,7 @@
 //
 #include "kernel/iproperty.h"
 #include "kernel/cinlineimage.h"
-
+#include <poppler/CharCodeToUnicode.h>
 #include "kernel/ccontentstream.h"
 #include "kernel/stateupdater.h"
 #include "kernel/factories.h"
@@ -172,6 +172,34 @@ SimpleGenericOperator::init_operands (boost::shared_ptr<observer::IObserver<IPro
 	} // for
 }
 
+CharCode mapFromUnicode(const Unicode *u, int size)
+{
+  CharCode mapLen = 256;
+  Unicode *map = (Unicode *)gmallocn(mapLen, sizeof(Unicode));
+
+        if (size == 1) {
+                for (CharCode j = 0; j < mapLen; ++j)
+                        if (map[j] == *u)
+                                return j;
+        }
+
+        // Nothing found
+        return -1;
+}
+
+
+ CharCode getCodeFromUnicode(const Unicode *u, int uSize)
+{
+    CharCode c = mapFromUnicode(u, uSize);
+    return (c & 0xff);
+}
+
+
+
+
+
+
+
 namespace utils {
 static std::string transformToCodeString(const std::string& what, const GfxFont *font)
 {
@@ -180,7 +208,7 @@ static std::string transformToCodeString(const std::string& what, const GfxFont 
 		int ch = what[i];
 		CharCode code = ch;
 		if (font)
-			code = font->getCodeFromUnicode((const Unicode *)&ch, 1);
+		   code = getCodeFromUnicode((const Unicode *)&ch, 1);
 		out += (char)code;
 	}
 	return out;
@@ -340,9 +368,10 @@ public:
 GfxFont* TextSimpleOperator::getCurrentFont()const
 {
 	assert(fontData);
-	const char* tag = fontData->getFontTag();
+    const char* tag = fontData->getFontTag();
+    char * tags = const_cast<char*>( tag );
 	boost::shared_ptr<GfxResources> res = getContentStream()->getResources(); 
-	GfxFont* font = res->lookupFont(tag);
+    GfxFont* font = res->lookupFont(tags);
 	if(!font)
 		utilsPrintDbg(debug::DBG_ERR, "Unable to get font(name="
 				<<fontData->getFontName()
@@ -357,22 +386,22 @@ void TextSimpleOperator::getFontText(std::string& str)const
 	getRawText(rawStr);
 
  	int len = rawStr.size();
- 	GString raw(rawStr.c_str(), len);
+ 	GooString raw(rawStr.c_str(), len);
  	GfxFont* font = getCurrentFont();
 	if(!font)
 		return;
 	utilsPrintDbg(debug::DBG_INFO, "Textoperator uses font="<<fontData->getFontName());
  	CharCode code;
- 	Unicode u;
+    Unicode *u;
  	int uLen;
  	double dx, dy, originX, originY;
  	char * p=raw.getCString();
  	while(len>0)
  	{
- 		int n = font->getNextChar(p, len, &code, &u, (int)(sizeof(u) / sizeof(Unicode)), &uLen,
+        int n = font->getNextChar(p, len, &code, &u, &uLen,
  			    &dx, &dy, &originX, &originY);
  		for (int i=0; i<uLen; ++i)
- 			str += (&u)[i];
+            str += char (u[i]);
  		p += n;
  		len -= n;
   	}
@@ -613,8 +642,9 @@ boost::shared_ptr<PdfOperator> createOperatorText (boost::shared_ptr<CContentStr
 {
 	utilsPrintDbg(debug::DBG_DBG, "");
 
-	boost::shared_ptr<GfxResources> res = cc->getResources();
-	GfxFont *font = res->lookupFont(fontName.c_str());
+    boost::shared_ptr<GfxResources> res = cc->getResources();
+    char* result = strcpy((char*)malloc(fontName.length()+1),fontName.c_str());
+    GfxFont *font = res->lookupFont(result);
 	std::string encText;
 	if (font) {
 		encText = transformToCodeString(text, font);

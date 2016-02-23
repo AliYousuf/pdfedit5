@@ -89,6 +89,7 @@ CPageDisplay::displayPage (::OutputDev& out,
 	// Get xref
 	boost::shared_ptr<CPdf> pdf = pagedict->getPdf().lock();
 	XRef* xref = (pdf)?pdf->getCXref ():NULL;
+    PDFDoc* pdfdoc = NULL;
 	assert (NULL != xref);
 	if (!(pagedict))
 		throw XpdfInvalidObject ();
@@ -103,34 +104,38 @@ CPageDisplay::displayPage (::OutputDev& out,
 			throw XpdfInvalidObject ();
 	
 	// Get page dictionary
-	const Dict* xpdfPageDict = xpdfPage->getDict ();
+        Dict* xpdfPageDict = xpdfPage->getDict ();
+        Ref ref;
+
+
 		assert (NULL != xpdfPageDict);
 
 	
 	//
 	// We need to handle special case
-	//
-	SplashOutputDev* sout = dynamic_cast<SplashOutputDev*> (&out);
-	if (sout)
-		sout->startDoc (xref);
+
+
 
 	//
 	// Create default page attributes and make page
 	// ATTRIBUTES are deleted in Page destructor
 	// 
-	Page page (xref, 0, xpdfPageDict, new PageAttrs (NULL, xpdfPageDict));
+    //Page page (xref, 0, xpdfPageDict, new PageAttrs (NULL, xpdfPageDict));
+    Page page(pdfdoc, 0, xpdfPageDict, ref, new PageAttrs (NULL, xpdfPageDict), NULL);
+
 	
 	// Create catalog
-	boost::scoped_ptr<Catalog> xpdfCatalog (new Catalog (xref));
+
 	
 	//
 	// Page object display (..., useMediaBox, crop, links, catalog)
 	//
 	// TODO ROTATION !! int rotation = _params.rotate - pagedict->getRotation ();
-	page.displaySlice (&out, _params.hDpi, _params.vDpi,
-			0, _params.useMediaBox, _params.crop,
-			x, y, w, h, 
-			false, xpdfCatalog.get());
+    page.displaySlice(&out, _params.hDpi, _params.vDpi,
+                                0, _params.useMediaBox, _params.crop,
+                                x, y, w, h,
+                                false, NULL, NULL, NULL, NULL, gFalse);
+
 
 }
 

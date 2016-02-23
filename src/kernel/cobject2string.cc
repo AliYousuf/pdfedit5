@@ -26,14 +26,14 @@
 // static
 #include "kernel/static.h"
 // poppler
-#include "kernel/poppler.h"
+#include "kernel/xpdf.h"
 //
 #include "kernel/pdfspecification.h"
 #include "kernel/cobject.h"
 
 
 using namespace std;
-using namespace poppler;
+using namespace xpdf;
 using namespace boost;
 
 // =====================================================================================

@@ -26,7 +26,7 @@
 // static
 #include "kernel/static.h"
 // xpdf
-#include "kernel/poppler.h"
+#include "kernel/xpdf.h"
 //
 #include "kernel/pdfspecification.h"
 #include "kernel/cobject.h"
@@ -34,7 +34,7 @@
 #include "kernel/cxref.h"
 #include "kernel/factories.h"
 
-
+class Dict;
 // =====================================================================================
 namespace pdfobjects{
 // =====================================================================================
@@ -53,6 +53,7 @@ using namespace boost;
 //
 //
 //
+Dict* dict;
 bool
 objHasParent (const IProperty& ip, boost::shared_ptr<IProperty>& indiObj)
 {
@@ -78,7 +79,7 @@ objHasParent (const IProperty& ip)
 //
 template<typename T>
 void 
-parseStreamToContainer (T& container, const ::Object& obj)
+parseStreamToContainer (T& container, ::Object& obj)
 {
 	assert (container.empty());
 	if (!obj.isStream())
@@ -122,7 +123,7 @@ parseStreamToContainer (T& container, const ::Object& obj)
 	//\TODO is it really ok?
 	rawstr->close ();
 }
-template void parseStreamToContainer<CStream::Buffer> (CStream::Buffer& container, const ::Object& obj);
+template void parseStreamToContainer<CStream::Buffer> (CStream::Buffer& container, ::Object& obj);
 
 
 //
@@ -168,7 +169,7 @@ using namespace debug;
 
 	// gets all bytes from xpdf string object, makes string valid (to some
 	// escaping)
-	const ::GString * s=stringObject.getString(); 
+    ::GooString * s=stringObject.getString();
 	string str;
 	for(int i=0; i<s->getLength(); i++)
 		str.append(1, s->getChar(i));

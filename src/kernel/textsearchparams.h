@@ -27,7 +27,7 @@
 #define _TEXTSEARCHPRAMS_H_
 
 // poppler includes
-#include "kernel/poppler.h"
+#include "kernel/xpdf.h"
 
 //=====================================================================================
 namespace pdfobjects {

@@ -531,7 +531,7 @@ unsigned char* bufferFromStream(Stream& str, size_t dictLength, size_t& size);
  * to find out how to decode). Nevertheless this operation may be considered 
  * harmfull for later usage of given the object in the xpdf code paths!
  */
-unsigned char* convertStreamToDecodedData (const Object& obj, size_t& size);
+unsigned char* convertStreamToDecodedData (Object& obj, size_t& size);
 
 /** Function to be used for data extracting from the given stream object.
  * Note that implementation can apply additional filters to the stream
@@ -553,7 +553,7 @@ unsigned char* convertStreamToDecodedData (const Object& obj, size_t& size);
  * @return Buffer (size bytes) with data (must be deallocated by caller) or 
  * NULL on error.
  */
-typedef unsigned char* (*stream_data_extractor)(const Object& obj, size_t& size);
+typedef unsigned char* (*stream_data_extractor)( Object& obj, size_t& size);
 
 /** Makes a valid pdf indirect object representation of stream object.
  * @param streamObject Xpdf object representing stream.
@@ -575,7 +575,7 @@ typedef unsigned char* (*stream_data_extractor)(const Object& obj, size_t& size)
  * 
  * @return number of bytes used in outputBuf or 0 if problem occures.
  */
-size_t streamToCharBuffer (const Object & streamObject, Ref* ref, CharBuffer & outputBuf, 
+size_t streamToCharBuffer (Object & streamObject, Ref* ref, CharBuffer & outputBuf,
 		stream_data_extractor extractor);
 	
 /**

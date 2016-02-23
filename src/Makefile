@@ -1,5 +1,5 @@
 #makefile for PDF editor
-.PHONY: distclean clean pdfedit kernel xpdf kpdf-kde-3.3.2 utils qoutputdevices qsa qsa_configure qsa4 qsa4_configure gui
+.PHONY: distclean clean pdfedit5 kernel kpdf-kde-3.3.2 utils qoutputdevices qsa qsa_configure qsa4 qsa4_configure gui
 
 # includes basic building rules
 # REL_ADDR has to be defined, because Makefile.rules refers 
@@ -11,21 +11,13 @@ include $(REL_ADDR)Makefile.rules
 # targets are determined during configure
 all: kernel tests $(GUI_TARGET) $(TOOLS_TARGET)
 
-# XPdf
-xpdf:
-	cd $(XPDFROOT) && $(MAKE) staticlib
-
-# Extra xpdf library for internal purposes (tests)
-xpdf-extra:
-	cd $(XPDFROOT) && $(MAKE) extralib
-
 # PDF editor
-pdfedit: utils kernel xpdf qoutputdevices qsa $(GUIROOT)/Makefile.qt
+pdfedit5: utils kernel  qoutputdevices qsa $(GUIROOT)/Makefile.qt
 	cd $(GUIROOT) && $(MAKE) -f Makefile.gui
 
 # PDFedit core development package for 3rd party code
-pdfedit-core-dev:
-	cd $(XPDFROOT) && $(MAKE) staticlib
+pdfedit5-core-dev:
+
 	cd $(UTILSROOT) && $(MAKE) staticlib
 	cd $(KERNELROOT) && $(MAKE) staticlib
 
@@ -46,21 +38,21 @@ pdfedit-core-dev:
 # QT makefile is created (because of file expansion used in project
 # file)
 # For the same reason we have to generate localization files too
-$(GUIROOT)/Makefile.qt: $(GUIROOT)/Makefile.gui $(GUIROOT)/pdfedit.pro
+$(GUIROOT)/Makefile.qt: $(GUIROOT)/Makefile.gui $(GUIROOT)/pdfedit5.pro
 	$(SHELL) $(ROOT)/tools/generate_online_help.sh "$(DOCROOT)" "$(GUIROOT)"
 	$(SHELL) $(ROOT)/tools/generate_lang.sh "$(GUIROOT)" "$(LRELEASE)"
-	cd $(GUIROOT) && $(QMAKE) pdfedit.pro -o Makefile.qt
+	cd $(GUIROOT) && $(QMAKE) pdfedit5.pro -o Makefile.qt
 
 # QOutputDevices - uses same trick with Makefile.{gui.qt} like
 # gui - see above
-qoutputdevices: xpdf $(QOUTPUTDEVROOT)/Makefile.qt
+qoutputdevices:  $(QOUTPUTDEVROOT)/Makefile.qt
 	cd $(QOUTPUTDEVROOT) && $(MAKE) -f Makefile.gui staticlib
 
 $(QOUTPUTDEVROOT)/Makefile.qt: $(QOUTPUTDEVROOT)/Makefile.gui $(QOUTPUTDEVROOT)/qoutputdevices.pro
 	cd $(QOUTPUTDEVROOT) && $(QMAKE) -o Makefile.qt
 
 # Utils
-utils: xpdf
+utils: 
 	cd $(UTILSROOT) && $(MAKE) staticlib
 
 #QSA
@@ -71,7 +63,7 @@ $(QSAROOT)/Makefile.qsa: $(QSAROOT)/qsa.pro
 	cd $(QSAROOT) && ./configure "${QMAKE}" "${E_RELEASE}"
 
 # Kernel
-kernel: xpdf utils
+kernel:  utils
 	cd $(KERNELROOT) && $(MAKE) staticlib
 
 # Tools
@@ -79,12 +71,12 @@ tools: kernel
 	cd $(TOOLSROOT) && $(MAKE)
 
 # kernel tests
-tests: kernel xpdf-extra
+tests: kernel 
 	cd $(TESTSROOT) && $(MAKE) 
 
 # internal rule for development which should be used when too many
 # changes were introduced
-dev-rebuild: dev-clean utils kernel tests pdfedit
+dev-rebuild: dev-clean utils kernel tests pdfedit5
 
 # Cleanup
 clean:
@@ -94,7 +86,6 @@ clean:
 	cd $(TOOLSROOT) && $(MAKE) clean || true
 	cd $(TESTSROOT) && $(MAKE) clean || true
 	cd $(UTILSROOT) && $(MAKE) clean
-	cd $(XPDFROOT) && $(MAKE) clean || true
 	cd $(QOUTPUTDEVROOT) && $(MAKE) -f Makefile.gui clean || true
 	$(DEL_FILE) $(GUIROOT)/Makefile.qt 
 	$(DEL_FILE) $(QOUTPUTDEVROOT)/Makefile.qt
@@ -115,9 +106,8 @@ distclean:
 	cd $(TOOLSROOT) && $(MAKE) clean || true
 	cd $(TESTSROOT) && $(MAKE) distclean || true
 	cd $(UTILSROOT) && $(MAKE) distclean || true
-	cd $(XPDFROOT) && $(MAKE) distclean || true
 	cd $(QOUTPUTDEVROOT) && $(MAKE) -f Makefile.gui distclean || true
 	$(DEL_FILE) $(QOUTPUTDEVROOT)/Makefile || true
 	$(DEL_FILE) $(UTILSROOT)/aconf.h || true
-	$(DEL_FILE $(GUIROOT)/config.h $(GUIROOT)/Makefile.qt $(GUIROOT)/menugenerator $(GUIROOT)/pdfedit || true
+	$(DEL_FILE $(GUIROOT)/config.h $(GUIROOT)/Makefile.qt $(GUIROOT)/menugenerator $(GUIROOT)/pdfedit5 || true
 	$(DEL_FILE) $(QOUTPUTDEVROOT)/Makefile.qt

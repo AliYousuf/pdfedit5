@@ -46,7 +46,7 @@ typedef struct
 		GBool xb;		//   boolean
 		int xi;			//   integer
 		double xr;		//   real
-		GString *xs;	//   string
+        GooString *xs;	//   string
 		char* xn;		//   name
 		Ref xref;		//   indirect reference
 	};
@@ -437,7 +437,7 @@ public:
 		e.n.value		= "name";
 		e.n.expected	= "/name";
 		
-		e.s.xs = new GString("string");			
+        e.s.xs = new GooString("string");
 		e.s.s = new string ("string");
 		e.s.value		= "string";
 		e.s.expected	= "(string)";

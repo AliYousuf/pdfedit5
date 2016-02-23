@@ -152,9 +152,7 @@ XRefWriter::XRefWriter(StreamWriter * stream, CPdf * _pdf)
 	revision(0), 
 	pdfWriter(new utils::OldStylePdfWriter())
 {
-	// gets storePos
-	// searches %%EOF element from startxref position.
-	storePos=XRef::eofPos;
+
 
 	// enables internal fetch for case of encrypted document.
 	// Fetching is ok in such a case because we fetching only
@@ -207,8 +205,8 @@ bool XRefWriter::paranoidCheck(const ::Ref &ref, ::Object * obj)
 	if(mode==paranoid)
 	{
 		// reference known test
-		RefState refState=knowsRef(ref);
-		if(refState==UNUSED_REF)
+        RefState refState;
+        if(refState==UNUSED_REF)
 		{
 			kernelPrintDbg(DBG_WARN, ref<<" is UNUSED_REF");
 			return false;
@@ -498,7 +496,8 @@ void XRefWriter::saveChanges(bool newRevision)
 	// casts stream (from XRef super type) and casts it to the FileStreamWriter
 	// instance - it is ok, because it is initialized with this type of stream
 	// in constructor
-	StreamWriter * streamWriter=dynamic_cast<StreamWriter *>(XRef::str);
+    BaseStream *str;
+    StreamWriter * streamWriter=dynamic_cast<StreamWriter *>(str);
 
 	// gets vector of all changed objects
 	IPdfWriter::ObjectList changed;
@@ -509,7 +508,7 @@ void XRefWriter::saveChanges(bool newRevision)
 		Object * obj=i->second->object;
 		// for sake of paranoia we should send clones and not the
 		// object itself to writer which is allowed to alter object
-		changed.push_back(IPdfWriter::ObjectElement(ref, obj->clone()));
+//        changed.push_back(IPdfWriter::ObjectElement(ref, obj->copy()));
 	}
 
 	// delegates writing to pdfWriter using streamWriter stream from storePos
@@ -522,7 +521,7 @@ void XRefWriter::saveChanges(bool newRevision)
 
 	// Stores position of the cross reference section to xrefPos
 	size_t xrefPos=streamWriter->getPos();
-	IPdfWriter::PrevSecInfo secInfo={lastXRefPos, XRef::maxObj+1};
+    IPdfWriter::PrevSecInfo secInfo={XRef::getNumObjects()+1};
 	size_t newEofPos=pdfWriter->writeTrailer(*getTrailerDict(), secInfo, *streamWriter);
 
 	// if new revision should be created, moves storePos behind stored content
@@ -576,7 +575,7 @@ size_t getPrevFromTrailer(Object * trailer)
 	// gets prev field from current trailer and if it is null object (not
 	// present) or doesn't have integer value, jumps out of loop
 	boost::shared_ptr< ::Object> prev(XPdfObjectFactory::getInstance(), xpdf::object_deleter());
-	trailerDict->lookupNF("Prev", prev.get());
+//    trailerDict->lookupNF("Prev", prev.get());
 	if(prev->getType()!=objInt)
 	{
 		kernelPrintDbg(DBG_DBG, "Prev doesn't have int value. type="
@@ -601,6 +600,7 @@ int XRefWriter::getOldStyleTrailer(Object * trailer, size_t off)
 	// searches for TRAILER_KEYWORD to be able to parse older trailer (one
 	// for xref on off position) - this works only for oldstyle XRef tables
 	// not XRef streams
+    BaseStream *str;
 	char * ret; 
 	char buffer[1024];
 	memset(buffer, '\0', sizeof(buffer));
@@ -698,7 +698,8 @@ void XRefWriter::collectRevisions()
 	kernelPrintDbg(DBG_DBG, "");
 
 	// starts with newest revision
-	size_t off=XRef::lastXRefPos;
+    size_t off=XRef::getRootGen();
+    BaseStream *str;
 
 	// linearized pdf doesn't support multiversion document clearly, so we don't
 	// implement collecting for such documents
@@ -721,7 +722,7 @@ void XRefWriter::collectRevisions()
 	}
 
 	// uses deep copy to prevent problems with original data
-	Object * trailer = XRef::getTrailerDict()->clone();
+    Object * trailer = XRef::getTrailerDict();
 	if(!trailer)
 	{
 		kernelPrintDbg(DBG_ERR, "Unable to clone trailer. Ignoring revision collecting.");
@@ -865,6 +866,7 @@ void XRefWriter::changeRevision(unsigned revNumber)
 
 size_t XRefWriter::getRevisionEnd(size_t xrefStart)const
 {
+    BaseStream *str;
 	StreamWriter * streamWriter=dynamic_cast<StreamWriter *>(str);
 	size_t pos=streamWriter->getPos();
 
@@ -893,7 +895,7 @@ size_t XRefWriter::getRevisionEnd(size_t xrefStart)const
 	return endPos;
 }
 
-void XRefWriter::cloneRevision(FILE * file)const
+void XRefWriter::cloneRevision(FILE * file)
 {
 using namespace debug;
 
@@ -901,12 +903,8 @@ using namespace debug;
 
 	check_need_credentials(this);
 
-	if(isEncrypted())
-	{
-		kernelPrintDbg(debug::DBG_WARN, "Operation is not supported for encrypted documents");
-		throw NotImplementedException("cloneRevision");
-	}
 
+    BaseStream *str;
 	StreamWriter * streamWriter=dynamic_cast<StreamWriter *>(str);
 	size_t pos=streamWriter->getPos();
 

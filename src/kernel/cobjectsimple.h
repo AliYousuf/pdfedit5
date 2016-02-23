@@ -28,6 +28,8 @@
 // all basic includes
 #include "kernel/static.h"
 #include "kernel/iproperty.h"
+#include "kernel/xpdf.h"
+#include <poppler/Lexer.h>
 #include <algorithm>
 
 
@@ -131,7 +133,7 @@ public:
 	 * @param o Xpdf object. 
 	 * @param rf Indirect id and gen id.
 	 */
-	CObjectSimple (boost::weak_ptr<CPdf> p, const Object& o, const IndiRef& rf);
+    CObjectSimple (boost::weak_ptr<CPdf> p, Object& o, const IndiRef& rf);
 	
 	/**
 	 * Constructor.
@@ -139,7 +141,7 @@ public:
 	 *
 	 * @param o Xpdf object. 
 	 */
-	CObjectSimple (const Object& o);
+    CObjectSimple (Object& o);
 public:	
 
 	/**
@@ -319,6 +321,27 @@ namespace utils {
  * @param it Start iterator.
  * @param end End iterator.
  */
+extern char specialChars[256];
+// A '1' in this array means the character is white space.  A '1' or
+// '2' means the character ends a name or command.
+char specialChars[256] = {
+  1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 0,   // 0x
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,   // 1x
+  1, 0, 0, 0, 0, 2, 0, 0, 2, 2, 0, 0, 0, 0, 0, 2,   // 2x
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 2, 0,   // 3x
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,   // 4x
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 2, 0, 0,   // 5x
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,   // 6x
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 2, 0, 0,   // 7x
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,   // 8x
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,   // 9x
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,   // ax
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,   // bx
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,   // cx
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,   // dx
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,   // ex
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0    // fx
+};
 template<typename Iter>
 std::string 
 makeNamePdfValid (Iter it, Iter end)
@@ -329,7 +352,7 @@ makeNamePdfValid (Iter it, Iter end)
 	{
 		unsigned ch = *it;
 
-		if (ch < sizeof(specialChars) && specialChars[*it])
+       if (ch < sizeof(specialChars) && specialChars[*it])
 		{ // Convert it to ascii
 			char hexstr[4];
 			snprintf(hexstr, sizeof(hexstr), "#%02x", ch & 0xff);
@@ -412,7 +435,7 @@ makeStringPdfValid (const std::string &str)
  * @param str Character string.
  */
 inline std::string 
-makeStringPdfValid (GString * str)
+makeStringPdfValid (GooString * str)
 { 
 	char * string = str->getCString();
 	return makeStringPdfValid (string); 
@@ -431,7 +454,7 @@ makeStringPdfValid (GString * str)
  *
  * @return Pointer to newly created object.
  */
-IProperty* createObjFromXpdfObj (boost::shared_ptr<CPdf> pdf, const ::Object& obj,const IndiRef& ref);
+IProperty* createObjFromXpdfObj (boost::shared_ptr<CPdf> pdf, ::Object& obj,const IndiRef& ref);
 
 /**
  * Creates CObject* from xpdf object.
@@ -440,7 +463,7 @@ IProperty* createObjFromXpdfObj (boost::shared_ptr<CPdf> pdf, const ::Object& ob
  *
  * @return Pointer to newly created object.
  */
-IProperty* createObjFromXpdfObj (const ::Object& obj);
+IProperty* createObjFromXpdfObj (::Object& obj);
 
 /**
  * Save real xpdf object value to val.
@@ -448,7 +471,7 @@ IProperty* createObjFromXpdfObj (const ::Object& obj);
  * @param obj Xpdf object which holds the value.
  * @param val Variable where the value will be stored.
  */
-template <PropertyType Tp,typename T> void simpleValueFromXpdfObj (const ::Object& obj, T val);
+template <PropertyType Tp,typename T> void simpleValueFromXpdfObj (::Object& obj, T val);
 
 /**
  * Create xpdf Object which represents value.

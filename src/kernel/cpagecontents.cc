@@ -387,7 +387,7 @@ CPageContents::getText (std::string& text, const string* encoding, const libs::R
 		kernelPrintDbg (debug::DBG_DBG, "");
 
 	// Create text output device
-	boost::scoped_ptr<TextOutputDev> textDev (new ::TextOutputDev (NULL, gFalse, gFalse, gFalse));
+    boost::scoped_ptr<TextOutputDev> textDev (new ::TextOutputDev (NULL, gFalse,0, gFalse, gFalse));
 		if (!textDev->isOk())
 			throw CObjInvalidOperation ();
 
@@ -406,7 +406,7 @@ CPageContents::getText (std::string& text, const string* encoding, const libs::R
 	if (90 == rot || 270 == rot)
 		std::swap (rec.xright, rec.yright);
 
-	boost::scoped_ptr<GString> gtxt (textDev->getText(rec.xleft, rec.yleft, rec.xright, rec.yright));
+	boost::scoped_ptr<GooString> gtxt (textDev->getText(rec.xleft, rec.yleft, rec.xright, rec.yright));
 	text = gtxt->getCString();
 }
 
@@ -423,8 +423,9 @@ size_t CPageContents::findText (std::string text,
 					  RectangleContainer& recs, 
 					  const TextSearchParams&) const
 {
+    double x = 000;
 	// Create text output device
-	boost::scoped_ptr<TextOutputDev> textDev (new ::TextOutputDev (NULL, gFalse, gFalse, gFalse));
+    boost::scoped_ptr<TextOutputDev> textDev (new ::TextOutputDev (NULL, gFalse, x,gFalse, gFalse));
 		assert (textDev->isOk());
 		if (!textDev->isOk())
 			throw CObjInvalidOperation ();
@@ -432,9 +433,9 @@ size_t CPageContents::findText (std::string text,
 	// Get the text
 	_page->display()->displayPage (*textDev);	
 
-	GBool startAtTop, stopAtBottom, startAtLast, stopAtLast, caseSensitive, backward;
+    GBool startAtTop, stopAtBottom, startAtLast, stopAtLast, caseSensitive, backward, wholeWord;
 	startAtTop = stopAtBottom = startAtLast = stopAtLast = gTrue;
-	caseSensitive = backward = gFalse;
+    caseSensitive = backward =  wholeWord = gFalse;
 	
 	double xMin = 0, yMin = 0, xMax = 0, yMax = 0;
 
@@ -445,7 +446,7 @@ size_t CPageContents::findText (std::string text,
 	    utext[i] = static_cast<Unicode> (text[i] & 0xff);
 	
 	if (textDev->findText(utext, length, startAtTop, stopAtBottom, 
-				startAtLast,stopAtLast, caseSensitive, backward,
+                startAtLast,stopAtLast, caseSensitive, backward,wholeWord,
 				&xMin, &yMin, &xMax, &yMax))
 	{
 		startAtTop = gFalse;
@@ -455,7 +456,7 @@ size_t CPageContents::findText (std::string text,
 		while (textDev->findText (utext, length,
 								  startAtTop, stopAtBottom, 
 								  startAtLast, stopAtLast, 
-								  caseSensitive, backward,
+                                  caseSensitive, backward,wholeWord,
 								  &xMin, &yMin, &xMax, &yMax))
 		{
 			recs.push_back (libs::Rectangle (xMin, yMin, xMax, yMax));

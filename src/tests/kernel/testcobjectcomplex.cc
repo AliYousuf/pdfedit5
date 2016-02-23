@@ -503,7 +503,7 @@ c_xpdfctor (const char* filename)
 		Object item1; item1.initBool	(gFalse);
 		Object item2; item2.initBool	(gTrue);
 		Object item3; item3.initInt	(-43);
-		Object item4; item4.initString	(new GString ("item4"));
+        Object item4; item4.initString	(new GooString ("item4"));
 
 		obj.arrayAdd (&item1);
 		obj.arrayAdd (&item2);
@@ -528,7 +528,7 @@ c_xpdfctor (const char* filename)
 		Object item1; item1.initBool	(gFalse);
 		Object item2; item2.initBool	(gTrue);
 		Object item3; item3.initInt	(-43);
-		Object item4; item4.initString	(new GString ("item4"));
+        Object item4; item4.initString	(new GooString ("item4"));
 
 		char* it1 = strdup ("lajno1");
 		char* it2 = strdup ("lajno2");

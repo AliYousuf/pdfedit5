@@ -48,7 +48,7 @@ using namespace utils;
 //
 //
 //
-CStream::CStream (boost::weak_ptr<CPdf> p, const ::Object& o, const IndiRef& rf) : IProperty (p,rf), parser (NULL), tmpObj (NULL)
+CStream::CStream (boost::weak_ptr<CPdf> p, ::Object& o, const IndiRef& rf) : IProperty (p,rf)
 {
 	kernelPrintDbg (debug::DBG_DBG,"");
 	// Make sure it is a stream
@@ -75,7 +75,7 @@ CStream::CStream (boost::weak_ptr<CPdf> p, const ::Object& o, const IndiRef& rf)
 //
 //
 //
-CStream::CStream (const ::Object& o) : parser (NULL), tmpObj (NULL)
+CStream::CStream ( ::Object& o) : parser (NULL), tmpObj (NULL)
 {
 	kernelPrintDbg (debug::DBG_DBG,"");
 	// Make sure it is a stream

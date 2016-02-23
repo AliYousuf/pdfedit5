@@ -143,13 +143,13 @@ public:
 		//assert (actstream->eof());
 		
 		// If anything went bad
-		if (0 == lexer->strIndex())
+        if (0 == lexer->getPos())
 		{
 			parsedstreams.push_back (streams[0]);
 		
 		}else		
 		{
-			for (size_t i = 0; i < lexer->strIndex(); ++i)
+            for (size_t i = 0; i < lexer->getPos(); ++i)
 				parsedstreams.push_back (streams[i]);
 		}
 		
@@ -176,7 +176,7 @@ public:
 	 * of a stream.
 	 */
 	void lookXpdfObject (::Object& obj)
-		{ parser->getNextObj (obj);	}
+        { parser->getObj(&obj);	}
 
 	/** 
 	 * Is end of all streams.
@@ -195,8 +195,7 @@ public:
 	 * Are we at the end of actual stream. We need to ask parser, because of
 	 * object caching.
 	 */
-	bool eofOfActualStream ()
-		{ return (parser->eofOfActualStream()); }
+
 	
 };
 
