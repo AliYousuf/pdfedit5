@@ -112,7 +112,6 @@ namespace {
 		CharCode code;
         Unicode *u;
 		double d = 0.0;
-        int xx ;
 		string result;
 		while (len > 0) 
 		{
@@ -125,7 +124,6 @@ namespace {
 
 			p += n;
 			len -= n;
-            xx = static_cast<int>(u);
 			// Put rather name tham the character
             Gfx8BitFont* f = dynamic_cast<Gfx8BitFont*> (font);
 			if (f)
@@ -142,7 +140,7 @@ namespace {
 					result += tmp;
 			
             }else
-                result += static_cast<char> (xx &(0xFF));
+                result += static_cast<char> (0xFF);
 		}
 
         return result;
