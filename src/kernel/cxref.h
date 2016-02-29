@@ -32,6 +32,7 @@
 
 #include "kernel/indiref.h"
 #include  "kernel/xpdf.h"
+#include <poppler/Stream.h>
 
 /** State of reference type.
  *

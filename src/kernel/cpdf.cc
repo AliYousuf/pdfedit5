@@ -33,6 +33,7 @@
 #include "kernel/cpageattributes.h"
 #include "kernel/pdfedit-core-dev.h"
 #include "kernel/streamwriter.h"
+#include <poppler/Stream.h>
 
 using namespace boost;
 using namespace std;
@@ -1658,7 +1659,7 @@ void CPdf::initRevisionSpecific()
 		registerPageTreeObservers(pageTreeRoot);
 }
 
-CPdf::CPdf(StreamWriter * stream, OpenMode openMode)
+CPdf::CPdf(BaseStream * stream, OpenMode openMode)
 	:pageTreeRootObserver(new PageTreeRootObserver(this)),
 	 pageTreeNodeObserver(new PageTreeNodeObserver(this)),
 	 pageTreeKidsObserver(new PageTreeKidsObserver(this)),
@@ -2328,9 +2329,8 @@ using namespace std;
 	// creates FileStream writer to enable changes to the File stream
 	Object obj;
 	obj.initNull();
-    Goffset  startA,lengthA ;
-   // (GooFile* fA, Goffset startA, GBool limitedA,  Goffset lengthA, Object *dictA)
-    StreamWriter * stream=new FileStreamWriter(file, startA, gFalse, lengthA, &obj);
+
+    BaseStream *stream = new FileStream((GooFile*)file, 0, gFalse, 0, &obj);
 	kernelPrintDbg(debug::DBG_DBG,"File stream created");
 
 	// stream is ready, creates CPdf instance

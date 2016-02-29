@@ -26,6 +26,10 @@
 
 #include "kernel/static.h"
 #include <poppler/Hints.h>
+//#include "kernel/streamAYA.h"
+
+
+
 
 /**
  * @file streamwriter.h
@@ -44,7 +48,7 @@
  * Declares base interface for all writers to Base stream. All real writers
  * should implement this abstract class and stream type which is written.
  */
-class StreamWriter: virtual public BaseStream
+class StreamWriter: public BaseStream
 {
 public:
 	/** Constructor with dictionary object.
@@ -129,8 +133,7 @@ public:
     //‘Fil:FileStream(FILE*&,    Guint&,       GBool&,         Guint&,       Object*&)’
 
     FileStreamWriter(GooFile* fA, Goffset startA, GBool limitedA,  Goffset lengthA, Object *dictA)
-        : BaseStream(dictA, lengthA),
-          StreamWriter(dictA, lengthA),
+        :  StreamWriter(dictA, lengthA),
           FileStream(fA, startA, limitedA, lengthA, dictA)
           {
 

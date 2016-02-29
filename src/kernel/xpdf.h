@@ -46,6 +46,7 @@
 
 #include <poppler/GlobalParams.h>
 #include <poppler/Catalog.h>
+#include <poppler/Stream.h>
 
 #include <assert.h>
 

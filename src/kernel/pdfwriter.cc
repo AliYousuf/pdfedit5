@@ -29,6 +29,7 @@
 #include "kernel/streamwriter.h"
 #include "kernel/factories.h"
 #include <poppler/Hints.h>
+#include <poppler/Stream.h>
 #include <zlib.h>
 
 /** Size of buffer for xref table row.
@@ -421,7 +422,7 @@ boost::shared_ptr<FilterStreamWriter> FilterStreamWriter::getInstance(Object& ob
  * Given xpdf object data (like stream or string) can contain unprintable or 
  * 0 bytes.
  */
-void writeObject(::Object & obj, StreamWriter & stream, ::Ref* ref, bool indirect)
+void writeObject(::Object & obj, BaseStream & stream, ::Ref* ref, bool indirect)
 {
 using namespace boost;
 using namespace std;
@@ -459,18 +460,19 @@ using namespace std;
 		CharBuffer charBuffer(buf, char_buffer_delete());
 		for(size_t i=0; i<bufSize; i++)
 			buf[i]=objPdfFormat[i];
-		stream.putLine(buf, bufSize);
+        stream.getLine(buf, bufSize);
 	}
 }
 
-void IPdfWriter::writeHeader( StreamWriter &stream)
+void IPdfWriter::writeHeader( BaseStream &stream)
 {
+
 	// move to the beggining
 	stream.reset();
 	stream.setPos(stream.getStart());
 
 	std::string header=PDFHEADER;
-	stream.putLine(header.c_str(), header.size());
+    stream.getLine(const_cast<char*>(header.c_str()), header.size());
 
 	// PDF specification suggests that header line should be followed by comment
 	// line with some binary (with codes bigger than 128) - so application
@@ -482,13 +484,13 @@ void IPdfWriter::writeHeader( StreamWriter &stream)
 	buffer[3]=(char )253;
 	buffer[4]=(char )254;
 	buffer[5]='\0';
-	stream.putLine(buffer, strlen(buffer));
+    stream.getLine(const_cast<char*>(buffer), strlen(buffer));
 }
 
 const std::string OldStylePdfWriter::CONTENT = "Content phase"; 
 const std::string OldStylePdfWriter::TRAILER = "XREF/TRAILER phase";
 
-void OldStylePdfWriter::writeContent(const ObjectList & objectList, StreamWriter & stream, size_t off)
+void OldStylePdfWriter::writeContent(ObjectList &objectList,BaseStream & stream, size_t off)
 {
 using namespace debug;
 using namespace boost;
@@ -810,17 +812,17 @@ using namespace debug;
 	utilsPrintDbg(DBG_DBG, "fileName="<<fileName);
 
 	// opens file handle and creates FileStreamWriter instance
-	FILE * file=fopen(fileName, "rb");
+    FILE * file=fopen(fileName, "rb");
 	if(!file)
 	{
 		int err=errno;
 		utilsPrintDbg(DBG_ERR, "Unable to open file. Error message="<<strerror(err));
 		return NULL;
 	}
-	Object dict;
+    Object *dict;
     Goffset  startA,lengthA ;
 	FileStreamData *streamData = new FileStreamData;
-    streamData->stream = new FileStreamWriter(file, startA, false, lengthA, &dict);
+    streamData->stream = new FileStream((GooFile*)file, startA, gFalse, lengthA, dict);
 	streamData->file = file;
 	return streamData;
 }
@@ -895,8 +897,8 @@ using namespace debug;
 	
 	// creates outputStream writer from given file
 	Object dict;
-	boost::shared_ptr<StreamWriter> outputStream(
-			new FileStreamWriter(file, 0, false, 0, &dict));
+    boost::shared_ptr<BaseStream> outputStream(
+            new FileStream((GooFile*)file, 0, gFalse, 0, &dict));
 
 	// Writes header with the same PDF version
     pdfWriter->writeHeader(*outputStream);
@@ -907,7 +909,7 @@ using namespace debug;
 		// writes collected objects and xref & trailer section
 		utilsPrintDbg(DBG_INFO, "Writing "<<objectList.size()
 				<<" objects to the output outputStream.");
-		pdfWriter->writeContent(objectList, *outputStream);
+        pdfWriter->writeContent(objectList, *outputStream);
 		// clean up
 		utilsPrintDbg(DBG_DBG, "Cleaning up all writen objects("
 				<<objectList.size()<<").");
@@ -922,7 +924,8 @@ using namespace debug;
 	// no previous section information and all objects are going to be written
 	IPdfWriter::PrevSecInfo prevInfo={0, 0};
 	pdfWriter->writeTrailer(*getTrailerDict(), prevInfo, *outputStream);
-	outputStream->flush();
+////	outputStream->flush();
+//    fflush(f);
 
 	return 0;
 }

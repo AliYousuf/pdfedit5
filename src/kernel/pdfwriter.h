@@ -28,6 +28,7 @@
 
 #include "kernel/static.h"
 #include "kernel/cxref.h"
+#include <poppler/Stream.h>
 
 /** Header of pdf file.
  * This string should be appended by pdf version number.
@@ -288,7 +289,7 @@ public:
 	 * @param ref Indirect reference for object (NULL for direct object).
 	 * @param outStream Output stream where to put data.
 	 */
-    virtual void compress( Object& obj, Ref* ref, StreamWriter& outStream)const =0;
+     void compress( Object& obj, Ref* ref, BaseStream& outStream)const ;
 };
 
 /** Stream writer implementation with no filters.
@@ -304,7 +305,7 @@ public:
 	/** Checks whether given object is supported.
 	 * @return allways true as it can write all stream objects.
 	 */
-    virtual bool supportObject(UNUSED_PARAM Object& obj)const;
+    virtual bool supportObject(Object& obj)const;
 
 	/** Extracts stream data without any decoding.
 	 */
@@ -455,7 +456,7 @@ public:
 	 * Moves the current position in the stream at the begginning before
 	 * writing.
 	 */
-    virtual void writeHeader(StreamWriter &stream);
+    virtual void writeHeader(BaseStream &stream);
 
 	/** Puts all objects to given stream.
 	 * @param objectList List of objects to store.
@@ -470,7 +471,7 @@ public:
 	 * <br>
 	 * Doesn't write xref and trailer.
 	 */
-	virtual void writeContent(const ObjectList & objectList, StreamWriter & stream, size_t off=0) =0;
+    void writeContent(ObjectList & objectList, BaseStream & stream, size_t off=0);
 
 	/** Writes xref and trailer section.
 	 * @param trailer Trailer object.xrefPos.
@@ -485,7 +486,7 @@ public:
 	 *
 	 * @return stream position where it is safe to store data for new revision.
 	 */
-    virtual size_t writeTrailer(Object & trailer, const PrevSecInfo &prevSection, StreamWriter & stream, size_t off=0)=0;
+     size_t writeTrailer(Object & trailer, const PrevSecInfo &prevSection, BaseStream & stream, size_t off=0);
 
 	/** Resets internal data collected in writeContent method.
 	 *
@@ -573,7 +574,7 @@ public:
 	 * contains total number of objects which should be written by this call.
 	 * Context task field contains CONTENT string.
 	 */
-	virtual void writeContent(const ObjectList & objectList, StreamWriter & stream, size_t off=0);
+     void writeContent(ObjectList & objectList, BaseStream & stream, size_t off=0);
 
 	/** Writes cross reference table and trailer.
 	 * @param trailer Trailer object.
@@ -643,7 +644,7 @@ struct FileStreamData
 	/** Stream writer.
 	 * Provides interface to write data to the stream.
 	 */
-	StreamWriter *stream;
+    BaseStream *stream;
 
 	/** File handle.
 	 *
@@ -652,7 +653,7 @@ struct FileStreamData
 	 * file handle from outside and also doesn't provide proper
 	 * close functionality.
 	 */
-	FILE *file;
+    FILE *file;
 };
 
 /** Helper class to deallocate a type which holds FileStreamData and
@@ -790,7 +791,7 @@ public:
 	 * @return StreamData which contains opened stream and file handle or
 	 * NULL if not able to open file for reading.
 	 */
-	static FileStreamData* getStreamData(const char * fileName);
+    static FileStreamData* getStreamData(const char * fileName);
 
 	/** Destructor.
 	 *
