@@ -56,11 +56,11 @@ utils:
 	cd $(UTILSROOT) && $(MAKE) staticlib
 
 #QSA
-qsa: $(QSAROOT)/Makefile.qsa
-	cd $(QSAROOT) && $(MAKE) staticlib
+#qsa: $(QSAROOT)/Makefile.qsa
+#	cd $(QSAROOT) && $(MAKE) staticlib
 
-$(QSAROOT)/Makefile.qsa: $(QSAROOT)/qsa.pro
-	cd $(QSAROOT) && ./configure "${QMAKE}" "${E_RELEASE}"
+#$(QSAROOT)/Makefile.qsa: $(QSAROOT)/qsa.pro
+#	cd $(QSAROOT) && ./configure "${QMAKE}" "${E_RELEASE}"
 
 # Kernel
 kernel:  utils
@@ -81,7 +81,7 @@ dev-rebuild: dev-clean utils kernel tests pdfedit5
 # Cleanup
 clean:
 	cd $(GUIROOT) && $(MAKE) -f Makefile.gui clean || true
-	cd $(QSAROOT) && $(MAKE) clean || true
+	#cd $(QSAROOT) && $(MAKE) clean || true
 	cd $(KERNELROOT) && $(MAKE) clean || true
 	cd $(TOOLSROOT) && $(MAKE) clean || true
 	cd $(TESTSROOT) && $(MAKE) clean || true
@@ -101,7 +101,7 @@ dev-clean:
 # Dist Cleanup
 distclean: 
 	cd $(GUIROOT) && $(MAKE) -f Makefile.gui distclean || true
-	cd $(QSAROOT) && $(MAKE) distclean || true
+	#cd $(QSAROOT) && $(MAKE) distclean || true
 	cd $(KERNELROOT) && $(MAKE) distclean || true
 	cd $(TOOLSROOT) && $(MAKE) clean || true
 	cd $(TESTSROOT) && $(MAKE) distclean || true

@@ -81,7 +81,7 @@ private:
  /** Scripting base */
  BaseCore *_base;
  /** Dictionary holding tree items that are references */
- Q_Dict<TreeItemRef> refs;
+ Q_Dict<TreeItemRef, TreeItemRef> refs;
  //ShowData
  /** Show simple objects (int,bool,string,name,real) in object tree? */
  bool show_simple;

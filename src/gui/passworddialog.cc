@@ -47,7 +47,7 @@ using namespace std;
 PasswordDialog::PasswordDialog(QWidget *parent/*=0*/, QString title/*=QString::null*/) : QDialog(parent) {
  //Dialog caption
  if (title.isNull()) title=tr("Enter password");
- setCaption(QString(APP_NAME)+" - "+title);
+ setWindowTitle(QString(APP_NAME)+" - "+title);
 
  //Main layout
  QGridLayout* grl_up=new QGridLayout(this,4,1);
@@ -62,10 +62,10 @@ PasswordDialog::PasswordDialog(QWidget *parent/*=0*/, QString title/*=QString::n
 
  //Lower layout with buttons
  QFrame *low=new QFrame(this);
- QGridLayout* grl=new QGridLayout(low,1,3);
- grl->setColStretch(0,10);
- grl->setColStretch(1,1);
- grl->setColStretch(2,1);
+ QGridLayout* grl=new QGridLayout(low/*,1,3*/);
+ grl->setColumnStretch(0,10);
+ grl->setColumnStretch(1,1);
+ grl->setColumnStretch(2,1);
  grl->setSpacing(16);
  grl->setMargin(2);
  QPushButton* btOk=    new QPushButton(QObject::tr("&Ok"),low,"opt_ok");

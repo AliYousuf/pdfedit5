@@ -24,7 +24,7 @@
 #ifndef __OPTION_H__
 #define __OPTION_H__
 
-#include <QtWidgets/QWidget>
+#include <QWidget>
 class QString;
 
 namespace gui {
@@ -42,9 +42,9 @@ public:
  virtual ~Option();
  //Abstract functions
  /** write edited value to settings (using key specified in contructor) */
- virtual void writeValue()=0;
+ virtual void writeValue();
  /** read value from settings for editing (using key specified in contructor) */
- virtual void readValue()=0;
+ virtual void readValue();
 protected:
  /** Name of this option */
  QString key;

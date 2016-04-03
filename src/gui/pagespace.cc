@@ -81,7 +81,7 @@ QString DEFAULT__VIEWED_UNITS = "cm";
 QString format = "x:%1 y:%2 %3";
 
 TextLine::TextLine ()
-	: QMainWindow ( NULL, NULL, Qt::WStyle_Customize | Qt::WStyle_NoBorder | Qt::WStyle_StaysOnTop | Qt::WDestructiveClose )
+    : QMainWindow ( NULL, NULL, Qt::CustomizeWindowHint | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint | Qt::WA_DeleteOnClose )
 {
 	edit = new QLineEdit ( this, "textline" );
 	edit->setFrame( false );

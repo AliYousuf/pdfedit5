@@ -37,16 +37,16 @@
 #include "toolbutton.h"
 #include "toolfactory.h"
 #include "util.h"
-#include <QtCore/QFile>
-#include <QtWidgets/QLabel>
-#include <QtWidgets/QMainWindow>
-#include <QtWidgets/QMenuBar>
+#include <QFile>
+#include <QLabel>
+#include <QMainWindow>
+#include <QMenuBar>
 #include <qmenudata.h>
-#include <QtGui/QPixmap>
+#include <QPixmap>
 #include QPOPUPMENU
-#include <QtCore/QRegExp>
-#include <QtCore/QString>
-#include <QtCore/QTextSteam>
+#include <QRegExp>
+#include <QString>
+#include <QTextSteam>
 #include <utils/debug.h>
 #include <assert.h>
 
@@ -444,10 +444,10 @@ int Menu::addItem(QMenuData *parent,const QString &name,const QString &caption,c
  int itemId=parent->insertItem(captionTr,menu_id);
  addToMap(name,parent,itemId);
  if (!accel.isNull() && accel.length()>0) { //accelerator specified
-  if (reserveAccel(accel,action)) parent->setAccel(QKeySequence(accel),menu_id);
+  if (reserveAccel(accel,action)) parent->setShortcut(QKeySequence(accel),menu_id);
  }
  if (!icon.isNull() && icon.length()>0) { //menu icon specified
-  const QIconSet *iconSet=cache->getIconSet(icon);
+  const QIcon *iconSet=cache->getIconSet(icon);
   if (iconSet) {
    parent->changeItem(itemId,*iconSet,captionTr);
   } else {
@@ -580,7 +580,7 @@ QString Menu::toolTipText(const QString &text,const QString &name,QString accel/
  @return pointer to toolbutton just added
 */
 ToolButton* Menu::createToolBarItem(ToolBar *tb,const QString &name,const QString &text,const QString &action, const QString &accel,const QString &icon, const QStringList &classes/*=QStringList()*/) {
- const QIconSet *iconSet=cache->getIconSet(icon);
+ const QIcon *iconSet=cache->getIconSet(icon);
  int menu_id=addAction(action);
  if (!iconSet) {
   guiPrintDbg(debug::DBG_WARN, "Icon missing: " << Q_OUT(icon));
@@ -589,7 +589,7 @@ ToolButton* Menu::createToolBarItem(ToolBar *tb,const QString &name,const QStrin
  ToolButton *tbutton=new ToolButton(iconSet,tooltip,menu_id,tb);
  addToMap(name,tbutton);
  if (!accel.isNull() && accel.length()>0) { //accelerator specified
-  if (reserveAccel(accel,action)) tbutton->setAccel(QKeySequence(accel));
+  if (reserveAccel(accel,action)) tbutton->setShortcut(QKeySequence(accel));
  }
  tb->addButton(tbutton);
  tbutton->show();
@@ -615,7 +615,7 @@ const QPixmap* Menu::getIcon(const QString &name) {
  @param name Name of icon set to get
  @return specified Icon set
 */
-const QIconSet* Menu::getIconSet(const QString &name) {
+const QIcon* Menu::getIconSet(const QString &name) {
  return cache->getIconSet(name);
 }
 
@@ -701,7 +701,7 @@ void Menu::restoreToolbars() {
  QString out=globalSettings->read("gui/toolbarpos");
  if (out.isNull()) return;
 #ifdef QT4
- main->restoreState(QByteArray::fromBase64(out.toAscii()));
+ main->restoreState(QByteArray::fromBase64(out.toLatin1());
 #else
  QTextStream qs(out,IO_ReadOnly);
  qs >> *main;

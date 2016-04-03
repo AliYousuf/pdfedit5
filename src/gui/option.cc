@@ -37,7 +37,7 @@ namespace gui {
  @param parent parent Option Editor containing this control
  @param _key Key in settings for this option
  */
-Option::Option(const QString &_key/*=0*/,QWidget *parent/*=0*/) : QWidget (parent, "option"){
+Option::Option(const QString &_key/*=0*/,QWidget *parent/*=0*/) : QWidget (parent){
  key=_key;
  changed=false;
 }

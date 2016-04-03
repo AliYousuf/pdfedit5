@@ -19,7 +19,8 @@
 #pragma interface
 #endif
 
-#include <qimage.h>
+//#include <qimage.h>
+#include <QImage>
 
 #include "QOutputDev.h"
 

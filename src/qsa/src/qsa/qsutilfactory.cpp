@@ -79,12 +79,14 @@
 #include "qsinterpreter.h"
 #include "qsutilfactory.h"
 
-#include <qapplication.h>
-#include <qdir.h>
-#include <qfile.h>
-#include <qobject.h>
-#include <qprocess.h>
-#include <qvariant.h>
+
+#include <QApplication>
+#include <QDir>
+#include <QFile>
+#include <QObject>
+#include <QProcess>
+#include <QVariant>
+
 
 #if defined (QT_THREAD_SUPPORT) && QT_VERSION >= 0x030300
 #include <qthread.h>

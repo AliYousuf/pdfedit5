@@ -33,10 +33,11 @@
 #define __SELECTPAGESDIALOG_H__
 
 #include "qtcompat.h"
+#include <QListWidget>
 #include <vector>
-#include <QtCore/QVariant>
-#include <qdialog.h>
-#include <qfiledialog.h>
+#include <QVariant>
+#include <QDialog>
+#include <QFileDialog>
 
 class QVBoxLayout;
 class QHBoxLayout;
@@ -141,15 +142,12 @@ public slots:
     /** Slot called when button ">>" to remove page from current document is clicked */
     virtual void removeBtn_clicked ();
 	// Other handlers
-#ifdef QT3
-    virtual void originalList_changed (QListBoxItem* item);
-    virtual void selectedList_changed (QListBoxItem*);
-#else
+
 //MOC_SKIP_BEGIN (Qt3 moc will skip this. Qt4 moc won't and it is able to understande ifdef. Good)
-    virtual void originalList_changed (Q3ListBoxItem* item);
-    virtual void selectedList_changed (Q3ListBoxItem*);
+    virtual void originalList_changed (Q_ListBoxItem* item);
+    virtual void selectedList_changed (Q_ListBoxItem*);
 //MOC_SKIP_END
-#endif
+
 
 protected slots:
     virtual void languageChange();

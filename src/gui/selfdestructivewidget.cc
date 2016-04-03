@@ -68,7 +68,7 @@ QObject::connect(killer,SIGNAL(selfDestruct()),this,SLOT(close()));
  @param name name of this widget (passed to QWidget)
  @param f Widget flags (passed to QWidget)
  */
-SelfDestructiveWidget::SelfDestructiveWidget(QWidget *killer,QWidget *parent/*=0*/, const char *name/*=0*/, WFlags f/*=0*/)
+SelfDestructiveWidget::SelfDestructiveWidget(QWidget *killer, QWidget *parent/*=0*/, const char *name/*=0*/, Qt::WindowFlags f/*=0*/)
  : QWidget(parent,name,f) {
 QObject::connect(killer,SIGNAL(selfDestruct()),this,SLOT(close()));
 }

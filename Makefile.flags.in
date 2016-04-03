@@ -167,8 +167,8 @@ TOOLSROOT	= $(SRCROOT)/tools
 KERNELTESTSROOT = $(TESTSROOT)/kernel
 GUIROOT		= $(SRCROOT)/gui
 OSROOT		= $(SRCROOT)/os
-QSA_QT		= @QSA_DIR@
-QSAROOT		= $(SRCROOT)/$(QSA_QT)
+#QSA_QT		= @QSA_DIR@
+#QSAROOT		= $(SRCROOT)/$(QSA_QT)
 QOUTPUTDEVROOT  = $(SRCROOT)/kpdf-kde-3.3.2
 
 BOOSTFLAGS 	 = @BOOST_CPPFLAGS@
@@ -177,11 +177,11 @@ FREETYPEFLAGS	 = @FT2_CFLAGS@
 ZLIBFLAGS	 = @ZLIB_CPPFLAGS@
 T1FLAGS		 = @t1_CFLAGS@
 PNGFLAGS	 = @png_CFLAGS@
-XPDFLAGS 	 = -I$(POPPLERROOT)/ 
+POPPLERFLAGS 	 = -I$(POPPLERROOT)/ 
 # This is required for qmake which always forces -I when specifying 
 # INCLUDEPATH
-QSAPATH		 = $(QSAROOT)/src/qsa
-QSAFLAGS	 = -I$(QSAPATH)
+#QSAPATH		 = $(QSAROOT)/src/qsa
+#QSAFLAGS	 = -I$(QSAPATH)
 QOUTPUTDEVPATH	 = $(QOUTPUTDEVROOT)
 QOUTPUTDEVFLAGS  = -I$(QOUTPUTDEVPATH)
 
@@ -189,7 +189,7 @@ QOUTPUTDEVFLAGS  = -I$(QOUTPUTDEVPATH)
 MANDATORY_INCPATH = -I$(SRCROOT) $(shell pkg-config --cflags poppler ) $(BOOSTFLAGS)\
 		   $(FREETYPEFLAGS) $(T1FLAGS) $(ZLIBFLAGS)
 # This is required for qmake which always forces -I when specifying 
-MANDATORY_PATHS	  = $(SRCROOT) $(XPDFLAGS) $(BOOSTFLAGS) $(FREETYPEFLAGS)
+MANDATORY_PATHS	  = $(SRCROOT) $(POPPLERFLAGS) $(BOOSTFLAGS) $(FREETYPEFLAGS)
 
 # All necessary includes for 3rd party code depending on pdfedit5-core-dev
 DIST_INCPATH	 = -I$(INCLUDE_PATH) -I$(INCLUDE_PATH)/poppler $(BOOSTFLAGS) \
@@ -206,10 +206,9 @@ BOOSTPROGRAMOPTIONS_LIBS = @BOOST_PROGRAM_OPTIONS_LIB@
 # PDFedit5 specific libs
 CPPUNIT_LIBS	 = @CPPUNIT_LIBS@
 QOUTPUTDEV_LIBS	 = -lqoutputdevices -L$(QOUTPUTDEVROOT)/
-QSALIB		 = -lqsa_pdfedit5 -L$(QSAROOT)/lib/
+#QSALIB		 = -lqsa_pdfedit5 -L$(QSAROOT)/lib/
 PDFEDIT5_LIBS     = -lkernel -L$(KERNELROOT) -lutils -L$(UTILSROOT) \
-		   -lpoppler -L$(POPPLERROOT)/poppler -lfofi -L$(POPPLERROOT)/poppler \
-		   -lGoo -L$(POPPLERROOT)/goo -lsplash -L$(POPPLERROOT)/splash 
+		   -lpoppler -L$(POPPLERROOT)  
 # given from configure parameters
 STANDARD_LIBS	 = @LIBS@
 STANDARD_LDFLAGS = @LDFLAGS@
@@ -223,9 +222,7 @@ MANDATORY_LIBS	 = $(BOOST_LIBS) $(PDFEDIT5_LIBS) \
 # goo, splash libraries
 DIST_LIBS =  $(BOOST_LIBS) \
 	     -lkernel -L$(LIB_PATH)/kernel -lutils -L$(LIB_PATH)/utils \
-	     -lpoppler -L$(LIB_PATH)/poppler -lfofi -L$(LIB_PATH)/fofi \
-	     -lGoo -L$(LIB_PATH)/goo -lsplash -L$(LIB_PATH)/splash \
-	     $(FREETYPE_LIBS) $(T1_LIBS)
+	     -lpoppler -L$(LIB_PATH)  $(FREETYPE_LIBS) $(T1_LIBS)
 
 # all necessary libraries in file with path form (mainly for qmake projects
 # to enable dependency on them)

@@ -39,13 +39,18 @@
 #include "util.h"
 #include "version.h"
 #include QBUTTONGROUP
-#include <QtWidgets/QFrame>
-#include <QtWidgets/QLabel>
-#include <QtWidgets/QLayout>
-#include <QtWidgets/QLineEdit>
-#include <QtWidgets/QPushButton>
-#include <QtWidgets/QRadioButton>
-#include <QtGui/QValidator>
+#include <QtGui>
+#include <QFlags>
+#include <Qt>
+#include <QFrame>
+#include <QLabel>
+#include <QLayout>
+#include <QLineEdit>
+#include <QPushButton>
+#include <QRadioButton>
+#include <QValidator>
+#include <QHBoxLayout>
+#include <QPalette>
 
 namespace gui {
 
@@ -58,12 +63,15 @@ using namespace util;
  @param parent Parent window of this dialog
  @param name Name of this window (used only for debugging
  */
+using ::operator|;
+Qt::WindowFlags flags /*= Qt::WA_DeleteOnClose | Qt::WA_PaintOnScreen | Qt::WindowMinimizeButtonHint | Qt::WindowSystemMenuHint | Qt::WindowTitleHint | Qt::CustomizeWindowHint*/;
 AddItemDialog::AddItemDialog(QWidget *parent/*=0*/,const char *name/*=0*/)
- : SelfDestructiveWidget(parent,parent,name,Qt::WDestructiveClose | Qt::WType_TopLevel | Qt::WStyle_Minimize | Qt::WStyle_SysMenu | Qt::WStyle_Title | Qt::WStyle_Customize) {
+ : SelfDestructiveWidget(parent,parent,name,flags) {
+   // SelfDestructiveWidget(parent,parent,name,Qt::WDestructiveClose | Qt::WType_TopLevel | Qt::WStyle_Minimize | Qt::WStyle_SysMenu | Qt::WStyle_Title | Qt::WStyle_Customize) qt3
  //Parent is also killer -> this is always toplevel widget
  settingName="add_item_dialog";
  globalSettings->restoreWindow(this,settingName);
- setCaption(tr("Add object"));
+ setWindowTitle(tr("Add object"));
  layout=new QVBoxLayout(this);
  layout->setMargin(4);
  layout->setSpacing(4);
@@ -82,26 +90,36 @@ AddItemDialog::AddItemDialog(QWidget *parent/*=0*/,const char *name/*=0*/)
  QObject::connect(okclo, SIGNAL(clicked()), this, SLOT(commitClose()));
 
  //Subpanel to select name or how to add to array - will be initialized later
- target=new QFrame(this);
-
+ target=new QFrame(this); 
  //Subpanel to edit content to be added
- items=new Q_ButtonGroup(2,Qt::Horizontal,tr("Type and value of new object"),this);
+ //QButtonGroup ( int strips, Orientation orientation, const QString & title, QWidget * parent = 0, const char * name = 0 ) qt3
+ items=new QButtonGroup(/*2,Qt::Horizontal,tr("Type and value of new object"),*/this);
  int i=0;
  selectedItem=-1;
  //Start adding widgets for various types of editable properties
- labels[i]=new QRadioButton(getTypeName(pBool  ),items);props[i]=new BoolProperty("<new>",items);i++;
- labels[i]=new QRadioButton(getTypeName(pInt   ),items);props[i]=new IntProperty("<new>",items);i++;
- labels[i]=new QRadioButton(getTypeName(pReal  ),items);props[i]=new RealProperty("<new>",items);i++;
- labels[i]=new QRadioButton(getTypeName(pString),items);props[i]=new StringProperty("<new>",items);i++;
- labels[i]=new QRadioButton(getTypeName(pName  ),items);props[i]=new NameProperty("<new>",items);i++;
- labels[i]=new QRadioButton(getTypeName(pRef   ),items);props[i]=new RefProperty("<new>",items);i++;
- labels[i]=new QRadioButton(getTypeName(pDict  ),items);props[i]=NULL;i++;new QLabel(tr("New empty Dictionary"),items);
- labels[i]=new QRadioButton(getTypeName(pArray ),items);props[i]=NULL;i++;new QLabel(tr("New empty Array"),items);
+ //QRadioButton ( const QString & text, QWidget * parent, const char * name = 0 ) qt3
+ //QRadioButton(const QString & text, QWidget * parent = 0)
+ labels[i]=new QRadioButton(getTypeName(pBool  ));
+  props[i]=new BoolProperty("<new>");i++;
+ labels[i]=new QRadioButton(getTypeName(pInt   ));
+ props[i]=new IntProperty("<new>");i++;
+ labels[i]=new QRadioButton(getTypeName(pReal  ));
+ props[i]=new RealProperty("<new>");i++;
+ labels[i]=new QRadioButton(getTypeName(pString));
+ props[i]=new StringProperty("<new>");i++;
+ labels[i]=new QRadioButton(getTypeName(pName  ));
+ props[i]=new NameProperty("<new>");i++;
+ labels[i]=new QRadioButton(getTypeName(pRef   ));
+ props[i]=new RefProperty("<new>");i++;
+ labels[i]=new QRadioButton(getTypeName(pDict  ));
+ props[i]=NULL;i++;new QLabel(tr("New empty Dictionary"));
+ labels[i]=new QRadioButton(getTypeName(pArray ));
+ props[i]=NULL;i++;new QLabel(tr("New empty Array"));
  //Check if array dimensions are correct
  assert(i==addDialogPropertyTypes);
  for (i=0;i<addDialogPropertyTypes;i++) {
   if (props[i]) props[i]->setDisabled(true);
-  items->insert(labels[i],i);
+  items->addButton(labels[i],i);
  }
  QObject::connect(items,SIGNAL(clicked(int)),this,SLOT(buttonSelected(int)));
  //message label
@@ -141,7 +159,9 @@ void AddItemDialog::setItem(boost::shared_ptr<IProperty> it) {
 
  CDict* dict=dynamic_cast<CDict*>(it.get());
  CArray* arr=dynamic_cast<CArray*>(it.get());
- QHBoxLayout *lu=new QHBoxLayout(target,4,4);
+ QHBoxLayout *lu=new QHBoxLayout(target);
+ lu->setMargin(4);
+ lu->setSpacing(4);
  if (dict) {		//initialize items for adding to Dict
   settingName="add_item_dialog_dict";
   globalSettings->restoreWindow(this,settingName);
@@ -179,7 +199,7 @@ void AddItemDialog::setItem(boost::shared_ptr<IProperty> it) {
   assert(0);
  }
  layout->addWidget(target);
- layout->addWidget(items);
+// layout->addWidget(items, 3,Qt::AlignLeft);  Fixed QT3
  layout->addWidget(qbox);
  layout->addWidget(msg);
 }
@@ -249,7 +269,10 @@ AddItemDialog* AddItemDialog::create(QWidget *parent,boost::shared_ptr<CArray> c
  @param message message to show
 */
 void AddItemDialog::message(const QString &message) {
- msg->setPaletteForegroundColor(QColor(0,0,0));//Set black color
+ QPalette palette;
+ palette.setColor(msg->backgroundRole(), QColor(0,0,0)); //Set red color qt5
+ msg->setPalette(palette);
+ // msg->setPaletteForegroundColor(QColor(0,0,0));//Set black color
  msg->setText(message);
 }
 
@@ -258,7 +281,11 @@ void AddItemDialog::message(const QString &message) {
  @param message message to show
 */
 void AddItemDialog::error(const QString &message) {
- msg->setPaletteForegroundColor(QColor(255,0,0));//Set red color
+
+ QPalette palette;
+ palette.setColor(msg->backgroundRole(), QColor(255,0,0)); //Set red color qt5
+ msg->setPalette(palette);
+ // msg->setPaletteForegroundColor(QColor(255,0,0));//Set red color qt3
  msg->setText(message);
 }
 

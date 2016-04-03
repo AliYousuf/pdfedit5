@@ -24,21 +24,21 @@
 #ifndef __ANNOTDIALOG_H__
 #define __ANNOTDIALOG_H__
 
-#include <QtWidgets/QGridLayout>
-#include <QtCore/QVariant>
-#include <QtWidgets/QFrame>
-#include <QtWidgets/QPushButton>
-#include <QtWidgets/QSpacerItem>
-#include <QtWidgets/QPushButton>
-#include <QtWidgets/QCheckBox>
-#include <QtWidgets/QComboBox>
-#include <QtWidgets/QTabWidget>
-#include <QtWidgets/QVBoxLayout>
-#include <QtWidgets/QHBoxLayout>
-#include <QtWidgets/QLabel>
-#include <QtWidgets/QLineEdit>
-#include <QtWidgets/QWidget>
-#include <QtWidgets/QDialog>
+#include <QWidget>
+#include <QGridLayout>
+#include <QVariant>
+#include <QFrame>
+#include <QPushButton>
+#include <QSpacerItem>
+#include <QPushButton>
+#include <QCheckBox>
+#include <QComboBox>
+#include <QGroupBox>
+#include <QTabWidget>
+#include <QVBoxLayout>
+#include <QLabel>
+#include <QLineEdit>
+#include <QDialog>
 
 #include "qspage.h"
 #include "kernel/static.h"
@@ -56,6 +56,7 @@ class QLabel;
 class QLineEdit;
 class QComboBox;
 class QFrame;
+class QGroupBox;
 
 namespace gui {
 
@@ -76,7 +77,7 @@ private:
     /** Page in which the annotation will be added */
     QSPage & page;
 public:
-    AnnotDialog(QSPage & p, QWidget* parent = 0, const char* name = 0, bool modal = FALSE, WFlags fl = 0 );
+    AnnotDialog(QSPage & p, QWidget* parent = 0, const char* name = 0, bool modal = false, Qt::WindowFlags fl = 0 );
     ~AnnotDialog();
 
 
@@ -93,7 +94,7 @@ protected:
     QPushButton* cancelButton;
     QTabWidget* tabWidget3;
     QWidget* tab;
-    Q_GroupBox* groupBox1;
+    QGroupBox* groupBox1;
     QCheckBox* open;
     QLabel* textLabel2;
     QLineEdit* textContent;

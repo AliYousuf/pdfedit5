@@ -24,9 +24,9 @@
 #ifndef __BASECORE_H__
 #define __BASECORE_H__
 
-#include <QtCore/QObject>
-#include <QtCore/QString>
-
+#include <QObject>
+#include <QString>
+#include "treeitemabstract.h"
 #include <boost/shared_ptr.hpp>
 #include "qtcompat.h"
 #include QPTRDICT
@@ -51,13 +51,13 @@ class QSPdf;
  Type containing binding between treeitem and its QSA wrapper.<br>
  Mapping is from TreeItemAbstract* to (QSTreeItem*)[]
 */
-typedef Q_PtrDict<Q_PtrDict<void> > TreeBindingMap;
+typedef Q_PtrDict<TreeItemAbstract*,Q_PtrDict<void,TreeItemAbstract> > TreeBindingMap;
 
 /**
  Iterator type for TreeBindingMap dictionary type
  \see TreeBindingMap
 */
-typedef Q_PtrDictIterator<QSTreeItem> TreeBindingMapIterator;
+typedef Q_PtrDictIterator< Q_PtrDict<void,TreeItemAbstract>, QSTreeItem> TreeBindingMapIterator;
 
 /**
  Core of Class that host scripts and is responsible for garbage collection of scripting objects
@@ -116,7 +116,7 @@ protected:
  bool treeReloadFlag;
 private:
  /** All Scripting objects created under this base. Will be used for purpose of garbage collection */
- Q_PtrDict<QSCObject> baseObjects;
+ Q_PtrDict<QSCObject, QSCObject> baseObjects;
  /** Console writer handler */
  ConsoleWriter *con;
  /** Last-seen error message from script */

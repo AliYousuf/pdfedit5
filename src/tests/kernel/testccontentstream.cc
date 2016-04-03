@@ -310,93 +310,93 @@ opcount (UNUSED_PARAM	ostream& oss, const char* fileName)
 		return false;
 	}
 
-	for (size_t i = 0; i < pdf->getPageCount() && i < TEST_MAX_PAGE_COUNT; ++i)
-	{
-		boost::shared_ptr<CPdf> pdf = getTestCPdf (fileName);
-		boost::shared_ptr<CPage> page = pdf->getPage (i + 1);
+////	for (size_t i = 0; i < pdf->getPageCount() && i < TEST_MAX_PAGE_COUNT; ++i)
+//	{
+//		boost::shared_ptr<CPdf> pdf = getTestCPdf (fileName);
+//		boost::shared_ptr<CPage> page = pdf->getPage (i + 1);
 
-		int pagesNum = i + 1;
-		Object obj;
-		XRef* xref = doc->getXRef();
-		assert (xref);
-		Catalog cat (xref);
-		if (1 > cat.getNumPages())
-			return true;
-		cat.getPage(pagesNum)->getContents(&obj);
-		IndiRef rf;
-		rf.num = cat.getPageRef(pagesNum)->num;
-		rf.gen = cat.getPageRef(pagesNum)->gen;
-		////
+//		int pagesNum = i + 1;
+//		Object obj;
+//		XRef* xref = doc->getXRef();
+//		assert (xref);
+//        Catalog cat;
+//		if (1 > cat.getNumPages())
+//			return true;
+//		cat.getPage(pagesNum)->getContents(&obj);
+//		IndiRef rf;
+//		rf.num = cat.getPageRef(pagesNum)->num;
+//		rf.gen = cat.getPageRef(pagesNum)->gen;
+//		////
 		
-		typedef vector<shared_ptr<CStream> > Streams;
-		Streams streams;
+//		typedef vector<shared_ptr<CStream> > Streams;
+//		Streams streams;
 		
-		//
-		// The problem is that we can not easily get indiref from an xpdf object
-		//
-		shared_ptr<CDict> dict = page->getDictionary ();
-		if (dict->containsProperty ("Contents"))
-		{
-			shared_ptr<IProperty> tmp = utils::getReferencedObject (dict->getProperty ("Contents"));
-			if (isStream (tmp) && obj.isStream())
-			{
+//		//
+//		// The problem is that we can not easily get indiref from an xpdf object
+//		//
+//		shared_ptr<CDict> dict = page->getDictionary ();
+//		if (dict->containsProperty ("Contents"))
+//		{
+//			shared_ptr<IProperty> tmp = utils::getReferencedObject (dict->getProperty ("Contents"));
+//			if (isStream (tmp) && obj.isStream())
+//			{
 				
-				streams.push_back ( shared_ptr<CStream> (new CStream (pdf, obj, tmp->getIndiRef())));
+//				streams.push_back ( shared_ptr<CStream> (new CStream (pdf, obj, tmp->getIndiRef())));
 
-			}else if (isArray (tmp) && obj.isArray())
-			{
-				Object o;
-				for (int i = 0; i < obj.arrayGetLength(); ++i)
-				{
-					shared_ptr<IProperty> ent = utils::getReferencedObject(IProperty::getSmartCObjectPtr<CArray> (tmp)->getProperty (i));
-					streams.push_back ( shared_ptr<CStream> (new CStream (pdf,  *(obj.arrayGet (i, &o)), ent->getIndiRef())));
-					o.free ();
-				}
-			}else
-			{
-				assert (!"Invalid contents entry.");
-			}
-		}
+//			}else if (isArray (tmp) && obj.isArray())
+//			{
+//				Object o;
+//				for (int i = 0; i < obj.arrayGetLength(); ++i)
+//				{
+//					shared_ptr<IProperty> ent = utils::getReferencedObject(IProperty::getSmartCObjectPtr<CArray> (tmp)->getProperty (i));
+//					streams.push_back ( shared_ptr<CStream> (new CStream (pdf,  *(obj.arrayGet (i, &o)), ent->getIndiRef())));
+//					o.free ();
+//				}
+//			}else
+//			{
+//				assert (!"Invalid contents entry.");
+//			}
+//		}
 
-		obj.free ();
+//		obj.free ();
 
-		CStreamsXpdfReader<Streams> reader (streams);
-		::Object o;		
-		reader.open ();
+//		CStreamsXpdfReader<Streams> reader (streams);
+//		::Object o;
+//		reader.open ();
 
-		reader.getXpdfObject (o);
-		while (!reader.eof())
-		{
+//		reader.getXpdfObject (o);
+//		while (!reader.eof())
+//		{
 
-			if (o.isCmd ("BI"))
-			{
-				if (!img (reader,pdf->getCXref()))
-					return false;
-				//testPrintDbg (debug::DBG_DBG, "end image...");
-			}
+//			if (o.isCmd ("BI"))
+//			{
+//				if (!img (reader,pdf->getCXref()))
+//					return false;
+//				//testPrintDbg (debug::DBG_DBG, "end image...");
+//			}
 			
-			if (o.isCmd ())
-			{
-				i++;
-				//oss << o.getCmd() << flush;
-			}else
-			{
-				//oss << "(" << o.getType() << ")" << flush;
-				//std::string tmp;
-				//utils::xpdfObjToString (o, tmp);
-				//oss << tmp << " " << flush;
-			}
+//			if (o.isCmd ())
+//			{
+//				i++;
+//				//oss << o.getCmd() << flush;
+//			}else
+//			{
+//				//oss << "(" << o.getType() << ")" << flush;
+//				//std::string tmp;
+//				//utils::xpdfObjToString (o, tmp);
+//				//oss << tmp << " " << flush;
+//			}
 
-			// grab the next object
-			o.free ();
-			reader.getXpdfObject (o);
-		}
+//			// grab the next object
+//			o.free ();
+//			reader.getXpdfObject (o);
+//		}
 
-		reader.close ();
+//		reader.close ();
 		
-		oss << " Op#: " << i << flush;
+//		oss << " Op#: " << i << flush;
 	
-	}
+//	}
 	
 	return true;
 }
@@ -537,11 +537,11 @@ primitiveprintContentStream (UNUSED_PARAM	ostream& oss, const char* fileName)
 	Object obj;
 	XRef* xref = doc->getXRef();
 	assert (xref);
-	Catalog cat (xref);
-	if (1 > cat.getNumPages())
-		return true;
+//	Catalog cat (xref);
+//	if (1 > cat.getNumPages())
+//		return true;
 
-	cat.getPage(pagesNum)->getContents(&obj);
+//	cat.getPage(pagesNum)->getContents(&obj);
 
 	scoped_ptr<Parser> parser (new Parser (xref, new Lexer(xref, &obj), 
 				gFalse  // TODO check if gFalse is ok here
@@ -615,11 +615,11 @@ cstreamsreader (UNUSED_PARAM	ostream& oss, const char* fileName)
 		Object obj;
 		XRef* xref = doc->getXRef();
 		assert (xref);
-		Catalog cat (xref);
-		cat.getPage(pagesNum)->getContents(&obj);
-		IndiRef rf;
-		rf.num = cat.getPageRef(pagesNum)->num;
-		rf.gen = cat.getPageRef(pagesNum)->gen;
+        //Catalog cat (xref);
+        //cat.getPage(pagesNum)->getContents(&obj);
+        //IndiRef rf;
+        //rf.num = cat.getPageRef(pagesNum)->num;
+        //rf.gen = cat.getPageRef(pagesNum)->gen;
 		typedef vector<shared_ptr<CStream> > Streams;
 		Streams streams;
 

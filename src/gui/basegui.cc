@@ -265,7 +265,7 @@ void BaseGUI::addScriptingObjects() {
 */
 void BaseGUI::treeItemDeleted(TreeItemAbstract* theItem) {
  //Get dictionary with all wrappers for given treeitem
- Q_PtrDict<void>* pDict=treeWrap[theItem];
+ Q_PtrDict<void,Q_PtrDict>* pDict=treeWrap[theItem];
  if (!pDict) {
   //No wrapper exists. Done.
   //guiPrintDbg(debug::DBG_DBG,"Item deleted that is not in wrapper");
@@ -274,7 +274,7 @@ void BaseGUI::treeItemDeleted(TreeItemAbstract* theItem) {
  //Ok, now disable all wrappers pointing to this item
 
  // For each wrapper
- Q_PtrDictIterator<void> it(*pDict);
+ Q_PtrDictIterator<QSTreeItem,Q_PtrDict> it(*pDict);
  for(;it.current();++it) {
   QSTreeItem* theWrap=reinterpret_cast<QSTreeItem*>(it.currentKey());
   guiPrintDbg(debug::DBG_DBG,"Disabling wrapper " << (intptr_t)theWrap << " w. item "<< (intptr_t)theItem);
@@ -285,7 +285,7 @@ void BaseGUI::treeItemDeleted(TreeItemAbstract* theItem) {
   guiPrintDbg(debug::DBG_DBG,"Disabled wrapper");
  }
  //Remove reference to subdictionary from dictionary
- treeWrap.remove(theItem);
+ treeWrap.remove(Q_PtrDict,theItem);
  //Autodelete is on, so the inner dictionary will be deleted ....
 }
 

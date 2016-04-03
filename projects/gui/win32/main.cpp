@@ -8,14 +8,14 @@
 
 // poppler, pdfedit
 #define NO_CMAP
-#include "poppler/poppler/GlobalParams.h"
+#include <poppler/GlobalParams.h>
 #undef NO_CMAP
 #include "kernel/pdfedit-core-dev.h"
 #include "kernel/cpdf.h"	
 #include "kernel/cpage.h"	
 #include "splash/Splash.h"	
 #include "splash/SplashBitmap.h"	
-#include "poppler/poppler/SplashOutputDev.h"
+#include <poppler/SplashOutputDev.h>
 
 
 namespace {

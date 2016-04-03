@@ -29,17 +29,22 @@
  Compatibility fixes to allow Qt3 code to work in Qt4
 */
 
-#include <qglobal.h>
+//#include <QtCore/qglobal.h>
+#include <QListWidget>    // qt5
+#include <QListWidgetItem>
+#include <QTreeWidget>
+#include <QTreeWidgetItem>
+#include <QTreeView>
 
-#if defined(QT_VERSION) && QT_VERSION >= 0x050000
+//#if defined(QT_VERSION) && QT_VERSION >= 0x050000
 
  // QT5 or newer
-#define QT5 1
+//#define QT5 1
 
-#include <Qt>
+//#include <Qt>
 
-/** qt3/qt4 compatibility typedef */
-typedef Qt::WindowFlags WFlags;
+///** qt3/qt4 compatibility typedef */
+//typedef Qt::WindowFlags WFlags;
 
 /** Macro working in QT3 and QT4, allowing to send QString to debugging output */
 #define Q_OUT(x) (x.toUtf8().data())
@@ -48,20 +53,20 @@ typedef Qt::WindowFlags WFlags;
 #define Q_ButtonGroup		QButtonGroup
 #define Q_ComboBox		QComboBox
 #define Q_Dict			QHash
-#define Q_DictIterator		Q3DictIterator
-#define Q_GroupBox		Q3GroupBox
+#define Q_DictIterator		 QHashIterator
+#define Q_GroupBox		QGroupBox
 #define Q_List			QList
-#define Q_ListBox		Q3ListBox
-#define Q_ListBoxItem		Q3ListBoxItem
-#define Q_ListBoxText		Q3ListBoxText
-#define Q_ListView		Q3ListView
-#define Q_ListViewItem		Q3ListViewItem
-#define Q_ListViewItemIterator	Q3ListViewItemIterator
+#define Q_ListBox		QListWidget
+#define Q_ListBoxItem		QListWidgetItem
+#define Q_ListBoxText		QListWidgetItem
+#define Q_ListView		    QTreeWidget
+#define Q_ListViewItem		QTreeWidgetItem
+#define Q_ListViewItemIterator	QTreeWidgetItemIterator
 #define Q_Painter		QPainter
 #define Q_PopupMenu		QMenu
 #define Q_PtrCollection		Q3PtrCollection
 #define Q_PtrDict		QHash
-#define Q_PtrDictIterator	Q3PtrDictIterator
+#define Q_PtrDictIterator	QMultiHash
 #define Q_PtrList		QList
 #define Q_PtrListIterator	Q3PtrListIterator
 #define Q_ScrollView		QScrollArea
@@ -75,22 +80,22 @@ typedef Qt::WindowFlags WFlags;
 #define TheWheelFocus		Qt::WheelFocus
 
 //Include aliases
-#define QBUTTONGROUP	<QtWidgets/QButtonGroup>
-#define QBYTEARRAY	<QtCore/QByteArray>
-#define QCOMBOBOX	<QtWidgets/QComboBox>
-#define QDICT		<QtCore/QHash>
-#define QGROUPBOX	<QtWidgets/QGroupBox>
+#define QBUTTONGROUP	<QButtonGroup>
+#define QBYTEARRAY	<QByteArray>
+#define QCOMBOBOX	<QComboBox>
+#define QDICT		<QHash>
+#define QGROUPBOX	<QGroupBox>
 #define QICON		<QtGui/QIcon>
-#define QLISTBOX	<Q3ListBox>
-#define QLISTVIEW	<Q3ListView>
+#define QLISTBOX	<QListView>
+#define QLISTVIEW	<QListView>
 #define QPOPUPMENU	<QMenu>
-#define QPTRDICT	<QtCore/QHash>
-#define QPTRLIST	<QtCore/QList>
+#define QPTRDICT	<QHash>
+#define QPTRLIST	<QList>
 #define QPTRCOLLECTION	<Q3PtrCollection>
-#define QLIST		<QtCore/QList>
+#define QLIST		<QList>
 #define QSCROLLVIEW	<QtWidgets/QScrollArea>
 #define QSTRLIST	<QtCore/QList>
-#define QTEXTBROWSER	<QtWidgets/QTextBrowser>
-#define QTEXTEDIT	<QtWidgets/QTextEdit>
+#define QTEXTBROWSER	<QTextBrowser>
+#define QTEXTEDIT	<QTextEdit>
 
 #endif

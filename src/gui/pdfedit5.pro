@@ -40,6 +40,9 @@ contains( E_RELEASE, yes ) {
 # Note Qt4 is not (yet) supported
 QT += core gui widgets
 
+INCLUDEPATH += /usr/include/poppler 
+LIBS +=-L/usr/include/poppler -lpoppler
+
 # QT_CLEAN_NAMESPACE must be specified, otherwise namespace debug will clash with debug() in QT
 QMAKE_CXXFLAGS += -DQT_CLEAN_NAMESPACE -fexceptions
 

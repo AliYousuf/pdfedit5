@@ -32,11 +32,12 @@
 #include "combooption.h"
 #include "settings.h"
 #include "util.h"
-#include <QtWidgets/QComboBox>
-#include <QtCore/QString>
-#include <QtCore/QStringList>
+#include <QComboBox>
+#include <QString>
+#include <QStringList>
 #include <utils/debug.h>
-#include <QtCore/QEvent>
+#include <QEvent>
+#include <QResizeEvent>
 
 namespace gui {
 
@@ -70,12 +71,15 @@ ComboOption::ComboOption(const QStringList &_values,const QStringList &_valueDes
 */
 void ComboOption::init(const QStringList &_values, const QStringList &_desc) {
  idx=-1;
- ed=new QComboBox(false,this);
+// ed=new QComboBox(false,this);  qt3
+ ed=new QComboBox(this);
  values=_values;
  caseSensitive=false;
  ed->setDuplicatesEnabled(true);
- ed->insertStringList(_desc);
- ed->setInsertionPolicy(QComboBox::NoInsertion);
+// ed->insertStringList(_desc);  qt3
+ ed->insertItems(-1,_desc);
+// ed->setInsertionPolicy(QComboBox::NoInsertion);
+ ed->setInsertPolicy(QComboBox::NoInsert);
  connect(ed,SIGNAL(activated(int)),this,SLOT(itemActivated(int)));
 }
 
@@ -108,21 +112,22 @@ void ComboOption::itemActivated(int index) {
 void ComboOption::readValue() {
  QString value=globalSettings->read(key);
  if (value.isNull()) return;
- if (caseSensitive) value=value.lower();
+ if (caseSensitive) value=value.toLower();
  //Look for item in the list
  int valuesCount=values.count();
  idx=0;
  QString v;
  for(int i=0;i<valuesCount;i++) {
   v=values[i];
-  if (caseSensitive) v=v.lower();
+  if (caseSensitive) v=v.toLower();
   if (v==value) {
    idx=i;
    break;
   }
  }
  //Use first match (Will "normalize" case in case of case-insensitive matching)
- ed->setCurrentItem(idx);
+// ed->setCurrentItem(idx); qt3
+ ed->setCurrentIndex(idx);
  changed=false; //Since we've just read the actual setting
 }
 

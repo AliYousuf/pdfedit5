@@ -29,18 +29,19 @@
 #include "util.h"
 #include <utils/debug.h>
 #include <iostream>
-#include <QtWidgets/QLayout>
-#include <QtWidgets/QPushButton>
-#include <QtCore/QFile>
+#include <QLayout>
+#include <QPushButton>
+#include <QFile>
 #include QLISTBOX
+#include <QListWidget>   // look to qtcompat.h
 #include QCOMBOBOX
-#include <QtCore/QTextSteam>
+#include <QTextSteam>
 #include QTEXTEDIT
-#include <QtWidgets/QLineEdit>
+#include <QLineEdit>
 #include <qseditor.h>
 #include <qsinterpreter.h>
-#include <QtWidgets/QSplitter>
-#include <QtWidgets/QSizePolicy>
+#include <QSplitter>
+#include <QSizePolicy>
 
 using namespace std;
 using namespace util;
@@ -320,7 +321,7 @@ void CommandWindow::execute( enum cmd  from ) {
  cmd->setText("");			//clear commandline
  in->textEdit()->clear();
  history->insertItem( command, 1 );
- history->setCurrentItem(0);
+ history->setCurrentIndex(0);
 
  emit commandExecuted(command);		//execute command via signal
 }

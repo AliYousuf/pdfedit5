@@ -47,7 +47,7 @@ ToolButton::ToolButton(const QPixmap *icon, const QString tooltip, int id, QWidg
  b_id=id;
  setTextLabel(tooltip);
  if (icon) {
-  QIconSet ico=QIconSet(*icon);
+ QIcon ico=QIcon(*icon);
   setIconSet(ico);
  }
 }

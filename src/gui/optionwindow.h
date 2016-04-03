@@ -25,9 +25,9 @@
 #define __OPTIONWINDOW_H__
 
 #include "qtcompat.h"
-#include <QtWidgets/QWidget>
+#include <QWidget>
 #include QDICT
-#include <QtCore/QMap>
+#include <QMap>
 class QLabel;
 class QTabWidget;
 class QFrame;
@@ -75,9 +75,11 @@ private:
  /** List of option names */
  QStringList *list;
  /** Dictionary with option items */
- Q_Dict<Option> *items;
+// Q_Dict<QString, Option> *items;
+ QHash<QString, Option*> *items;
  /** Dictionary with option labels */
- Q_Dict<QLabel> *labels;
+// Q_Dict<QString, QLabel> *labels;
+ QHash<QString, QLabel*> *labels;
  /** Main tab widget */
  QTabWidget *tab;
  /** Grid layout for the tab */

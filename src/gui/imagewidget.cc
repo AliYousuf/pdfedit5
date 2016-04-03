@@ -41,14 +41,14 @@ namespace gui {
  @param bgColor background color used to paint areas outside of image
  @param parent parent widget
 */
-ImageWidget::ImageWidget(const QPixmap *p,QColor bgColor,QWidget *parent) : QWidget(parent) {
+ImageWidget::ImageWidget(const QPixmap *p/*,QColor bgColor*/,QWidget *parent) : QWidget(parent) {
  img=p;
  assert(img);
  if (img){
   QSize imageSize=img->size();
   setMinimumSize(imageSize);
  }
- setPaletteBackgroundColor(bgColor);
+
 // setBackgroundMode(FixedColor);
 }
 

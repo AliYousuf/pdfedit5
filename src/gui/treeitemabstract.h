@@ -28,6 +28,8 @@
 #include QLISTVIEW
 #include QDICT
 #include <QtCore/QMap>
+#include <QTreeWidgetItem>
+#include <QTreeWidget>
 
 class QStringList;
 class QString;
@@ -60,7 +62,7 @@ public:
  void setSelect(bool selected);
  void unSelect(Q_ListView *tree);
  QString path();
- TreeItemAbstract(const QString &itemName,TreeData *_data,Q_ListView *parent,Q_ListViewItem *after=NULL);
+ TreeItemAbstract(const QString &itemName,TreeData *_data, QTreeWidget *parent,Q_ListViewItem *after=NULL);
  TreeItemAbstract(const QString &itemName,TreeData *_data,Q_ListViewItem *parent,Q_ListViewItem *after=NULL);
  QString name();
  void setName(const QString &newNameId);
@@ -136,12 +138,18 @@ private:
 protected:
  /** Name of this item */
  QString nameId;
+
  /** Mapping of all child names to child items for this tree item */
- Q_Dict<Q_ListViewItem> items;
+ Q_Dict<QString, Q_ListViewItem* > items;
  /** Mapping of all child names to types of child items for this tree item */
- QMap<QString,ChildType> types;
+ QMap<QString, ChildType> types;
  /** Data from treewindow containing reference to it and other needed data */
  TreeData *data;
+ int Firt;
+ int Last;
+ int priv;
+ int Next;
+ int par;
 private:
  /** False, if childs of this items are yet unknown and to be parsed/added, true if already parsed */
  bool parsed;

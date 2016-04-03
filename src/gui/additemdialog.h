@@ -24,15 +24,14 @@
 #ifndef __ADDITEMDIALOG_H__
 #define __ADDITEMDIALOG_H__
 
-#include <QtCore/QString>
-
-#include <QtWidgets/QButtonGroup>
-#include <QtWidgets/QFrame>
-#include <QtWidgets/QRadioButton>
-#include <QtWidgets/QBoxLayout>
-#include <QtWidgets/QLabel>
-#include <QtWidgets/QLineEdit>
-#include <QtWidgets/QWidget>
+#include <QString>
+#include <QButtonGroup>
+#include <QFrame>
+#include <QRadioButton>
+#include <QBoxLayout>
+#include <QLabel>
+#include <QLineEdit>
+#include <QWidget>
 
 #include "selfdestructivewidget.h"
 

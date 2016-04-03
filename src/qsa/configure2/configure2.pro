@@ -6,7 +6,7 @@ TEMPLATE = app
 CONFIG -= moc
 CONFIG += console
 INCLUDEPATH += .
-
+QT += core gui widgets
 # Input
 SOURCES += main.cpp configutils.cpp
 HEADERS += configutils.h

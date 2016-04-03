@@ -32,12 +32,12 @@
 #include "iconcache.h"
 #include "imagewidget.h"
 
-#include <QtWidgets/QFrame>
-#include <QtWidgets/QLabel>
-#include <QtWidgets/QLayout>
-#include <QtWidgets/QPushButton>
-#include <qsaglobal.h>
-#include <QtWidgets/QSizePolicy>
+#include <QFrame>
+#include <QLabel>
+#include <QLayout>
+#include <QPushButton>
+//#include <qsaglobal.h>
+#include <QSizePolicy>
 
 namespace gui {
 
@@ -47,19 +47,19 @@ using namespace std;
 QString app=QString(APP_NAME) +" "+ QString(PDFEDIT_VERSION);
 
 /** About Dialog flags */
-const Qt::WFlags aboutDialogFlags=Qt::WDestructiveClose | Qt::WType_Dialog;
+const  Qt::WindowFlags aboutDialogFlags=Qt::WindowCloseButtonHint | Qt::Dialog;
 
 /**
  constructor of AboutWindow, creates window and fills it with elements, parameters are ignored
  @param parent Parent window of this dialog
  @param name Name of this window (used only for debugging
  */
-AboutWindow::AboutWindow(QWidget *parent/*=0*/,const char *name/*=0*/):QWidget(parent,name,aboutDialogFlags) {
+AboutWindow::AboutWindow(QWidget *parent/*=0*/):QWidget(parent,aboutDialogFlags) {
  ic=new IconCache();
  //Window title
- setCaption(app+" - "+tr("About program"));
+ setWindowTitle(app+" - "+tr("About program"));
 
- QGridLayout *l=new QGridLayout(this,2,2);
+ QGridLayout *l=new QGridLayout(this/*,2,2*/);
  l->setRowStretch(0,1);
 
  //Text in about window
@@ -72,13 +72,13 @@ AboutWindow::AboutWindow(QWidget *parent/*=0*/,const char *name/*=0*/):QWidget(p
 
  QLabel *lb=new QLabel(QString("<table><tr><td valign=\"top\"><h1>")+app+"</h1>"+tr("Compiled")+": "+COMPILE_TIME
   +"<br>"+tr("Using Qt %1").arg(QT_VERSION_STR)
-  +tr(", QSA %1").arg(QSA_VERSION_STRING)
+//  +tr(", QSA %1").arg(QSA_VERSION_STRING)
   +"<br><br>"+info+"<br><br>"+authors+"</td></tr><tr><td colspan=\"\2\">"+tr("This program is distributed under terms of GNU GPL")+"</td></tr></table>", this);
  lb->setTextFormat(Qt::RichText);
 
  //Lower frame with Ok button
  QFrame *okFrame=new QFrame(this);
- QGridLayout *lFrame=new QGridLayout(okFrame,1,2,5);
+ QGridLayout *lFrame=new QGridLayout(okFrame/*,1,2,5*/);
 
  //Ok button
  QPushButton *ok=new QPushButton(QObject::tr("&Ok"), okFrame);
@@ -92,7 +92,7 @@ AboutWindow::AboutWindow(QWidget *parent/*=0*/,const char *name/*=0*/):QWidget(p
 
  //Logo on right
  QPixmap* logoImage=ic->getIcon("pdfedit_logo.png");
- QWidget *logo=new ImageWidget(logoImage,QColor(255,255,255),this);
+ QWidget *logo=new ImageWidget(logoImage/*,QColor(255,255,255)*/,this);
  if (logoImage) {
   imageSize=logoImage->size();
   logo->setFixedWidth(imageSize.width());
@@ -101,7 +101,8 @@ AboutWindow::AboutWindow(QWidget *parent/*=0*/,const char *name/*=0*/):QWidget(p
  //Background of text
  QPixmap* bgImage=ic->getIcon("pdfedit_bg.png");
  if (bgImage) {
-  lb->setErasePixmap(*bgImage);
+//  lb->setErasePixmap(*bgImage); Qt3
+  lb->setPixmap(*bgImage);
   bgSize=bgImage->size();
   lb->setMaximumSize(bgSize);
  }
@@ -115,10 +116,10 @@ AboutWindow::AboutWindow(QWidget *parent/*=0*/,const char *name/*=0*/):QWidget(p
   setMinimumSize(QSize(imageSize.width(),10+ok->sizeHint().height()+imageSize.height()));
  }
 
- l->setResizeMode(QLayout::Minimum);
+// l->setResizeMode(QLayout::Minimum);  so this on QT3 but Qt5 NOt have it
  l->addWidget(lb,0,0);
  l->addWidget(logo,0,1);
- l->addMultiCellWidget(okFrame,1,1,0,1);
+ l->addWidget(okFrame,1,1,0,1);
 }
 
 /** default destructor */

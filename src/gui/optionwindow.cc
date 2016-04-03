@@ -30,10 +30,10 @@
 */
 
 #include "optionwindow.h"
-#include <QtCore/QDir>
-#include <QtWidgets/QLabel>
-#include <QtWidgets/QTabWidget>
-#include <QtWidgets/QLayout>
+#include <QDir>
+#include <QLabel>
+#include <QTabWidget>
+#include <QLayout>
 #include <utils/debug.h>
 #include "util.h"
 #include "stringoption.h"
@@ -43,11 +43,11 @@
 #include "combooption.h"
 #include "booloption.h"
 #include "intoption.h"
-#include <QtCore/QPoint>
+#include <QPoint>
 #include <stdlib.h>
-#include <QtWidgets/QPushButton>
-#include <QtWidgets/QStyleFactory>
-#include <QtWidgets/QApplication>
+#include <QPushButton>
+#include <QStyleFactory>
+#include <QApplication>
 #include "version.h"
 #include "settings.h"
 #include "menu.h"
@@ -73,8 +73,8 @@ OptionWindow *opt=NULL;
  @param units_id list of available length unit identifiers. Same count and order as units
 */
 void OptionWindow::optionsDialog(Menu *msystem,const QStringList &units,const QStringList &units_id) {
- if (opt) { //the dialog is already active
-  opt->setActiveWindow();
+ if (opt) { //the dialog is already active isActiveWindow() ;
+  opt->activateWindow();
  } else { //create new dialog
   opt=new OptionWindow(msystem,units,units_id);
   opt->show();
@@ -89,39 +89,42 @@ void OptionWindow::optionsDialog(Menu *msystem,const QStringList &units,const QS
  @param parent parent widget containing this control
  @param name name of widget (currently unused)
  */
-OptionWindow::OptionWindow(Menu *msystem,const QStringList &units,const QStringList &units_id,QWidget *parent /*=0*/, const char *name /*=0*/) : QWidget(parent,name,Qt::WDestructiveClose | Qt::WType_TopLevel) {
+OptionWindow::OptionWindow(Menu *msystem,const QStringList &units,const QStringList &units_id,QWidget *parent /*=0*/, const char *name /*=0*/) : QWidget(parent, Qt::Window ) {
  guiPrintDbg(debug::DBG_DBG,"Options creating ...");
  menuSystem=msystem;
- setCaption(QString(APP_NAME)+" - "+tr("options"));
+ setWindowTitle(QString(APP_NAME)+" - "+tr("options"));
  //create list of properties in this editor;
  list=new QStringList();
  //create option dictionary
- items=new Q_Dict<Option>();
+ items=new QHash<QString, Option*>();
  //create labels dictionary
- labels=new Q_Dict<QLabel>();
+ labels=new Q_Dict<QString, QLabel*>();
  l_units=units;
  l_units_id=units_id;
- QGridLayout* grl_up=new QGridLayout(this,2,1);
+ QGridLayout* grl_up=new QGridLayout(this/*,2,1*/);
  grl_up->setRowStretch(0,1);
  grl_up->setRowStretch(1,0);
 
  //create tab widget
- tab=new QTabWidget(this,"option_tab");
+ tab=new QTabWidget/*(this,"option_tab")*/;
+ tab->addTab(this,"option_tab");
  grl_up->addWidget(tab,0,0);
  //Bottom part
  QFrame *low=new QFrame(this);
  grl_up->addWidget(low,1,0);
- QGridLayout* grl=new QGridLayout(low,1,4);
- grl->setColStretch(0,10);
- grl->setColStretch(1,1);
- grl->setColStretch(2,1);
- grl->setColStretch(3,1);
+ QGridLayout* grl=new QGridLayout(low/*,1,4*/);
+ grl->setColumnStretch(0,10);
+ grl->setColumnStretch(1,1);
+ grl->setColumnStretch(2,1);
+ grl->setColumnStretch(3,1);
  grl->setSpacing(16);
  grl->setMargin(8);
  grl->addWidget(new QLabel("~/" CONFIG_DIR "/pdfeditrc",low),0,0);
- QPushButton* btOk=    new QPushButton(QObject::tr("&Ok"),low,"opt_ok");
- QPushButton* btApply= new QPushButton(QObject::tr("&Apply"),low,"opt_apply");
- QPushButton* btCancel=new QPushButton(QObject::tr("&Cancel"),low,"opt_cancel");
+// QPushButton ( const QString & text, QWidget * parent, const char * name = 0 ) qt3
+// QPushButton(const QString & text, QWidget * parent = 0)   qt5
+ QPushButton* btOk=    new QPushButton(QObject::tr("&Ok"),low);
+ QPushButton* btApply= new QPushButton(QObject::tr("&Apply"),low);
+ QPushButton* btCancel=new QPushButton(QObject::tr("&Cancel"),low);
  grl->addWidget(btOk,0,1);
  grl->addWidget(btApply,0,2);
  grl->addWidget(btCancel,0,3);
@@ -135,9 +138,10 @@ OptionWindow::OptionWindow(Menu *msystem,const QStringList &units,const QStringL
 /** Called on pushing 'Apply' button */
 void OptionWindow::apply() {
  //save settings
- Q_DictIterator<Option> it(*items);
- for (;it.current();++it) {
-  Option* c=it.current();
+// Q_DictIterator<QString, Option*> it(*&items);
+ QHashIterator <QString, Option*> it(*items);
+ for (;it.hasNext();it.next()) {
+  Option* c=it.value();
   guiPrintDbg(debug::DBG_DBG,"Writing " << Q_OUT(c->getName()));
   c->writeValue();
  }
@@ -163,7 +167,7 @@ QWidget* OptionWindow::addTab(const QString name,bool makeSegments/*=false*/) {
  if (makeSegments) {
   QFrame* mGrid=new QFrame(tab);
   tab->addTab(mGrid,name);
-  QGridLayout* mGridLayout=gridl[mGrid]=new QGridLayout(mGrid,1,1);
+  QGridLayout* mGridLayout=gridl[mGrid]=new QGridLayout(mGrid/*,1,1*/);
   grid=new QFrame(mGrid);
   masterGrid[grid]=mGrid;
   mGridLayout->addWidget(grid,0,0);
@@ -181,13 +185,13 @@ QWidget* OptionWindow::addTab(const QString name,bool makeSegments/*=false*/) {
  @param grid Widget to initialize with grid layout
 */
 void OptionWindow::initGridFrame(QWidget *grid) {
- QGridLayout* grl=gridl[grid]=new QGridLayout(grid,1,2);
+ QGridLayout* grl=gridl[grid]=new QGridLayout(grid/*,1,2*/);
  nObjects[grid]=0;
  grl->setSpacing(5);
  grl->setMargin(8);
  //set key column to be fixed and value column to be expandable
- grl->setColStretch(0,0);
- grl->setColStretch(1,1);
+ grl->setColumnStretch(0,0);
+ grl->setColumnStretch(1,1);
 }
 
 /**
@@ -223,7 +227,7 @@ void OptionWindow::addOption(QWidget *otab,const QString &caption,Option *opt) {
  int labelHeight=label->sizeHint().height();
  int optHeight=opt->sizeHint().height();
  int lineHeight=MAX(labelHeight,optHeight);
- gridl[otab]->setRowSpacing(nObjects[otab],lineHeight);
+ gridl[otab]->setRowMinimumHeight(nObjects[otab],lineHeight);
  gridl[otab]->addWidget(label,nObjects[otab],0);
  gridl[otab]->addWidget(opt,nObjects[otab],1);
  label->setFixedHeight(lineHeight);
@@ -231,6 +235,7 @@ void OptionWindow::addOption(QWidget *otab,const QString &caption,Option *opt) {
  nObjects[otab]++;
  list->append(key);
  items->insert(key,opt);
+
  labels->insert(caption,label);
  opt->readValue();
  opt->show();
@@ -245,8 +250,8 @@ void OptionWindow::addOption(QWidget *otab,const QString &caption,Option *opt) {
  */
 void OptionWindow::addWidget(QWidget *otab,QWidget *elem) {
 // int lineHeight=elem->sizeHint().height();
-// gridl[otab]->setRowSpacing(nObjects[otab],lineHeight);
- gridl[otab]->addMultiCellWidget(elem,nObjects[otab],nObjects[otab],0,1);
+// gridl[otab]->setRowMinimumHeight(nObjects[otab],lineHeight);
+ gridl[otab]->addWidget(elem,nObjects[otab],nObjects[otab],0,1);
 // elem->setFixedHeight(lineHeight);
  nObjects[otab]++;
  elem->show();
@@ -366,7 +371,7 @@ void OptionWindow::addOptionInt(QWidget *otab,const QString &caption,const QStri
  Initialize window with options
  */
 void OptionWindow::init() {
- setUpdatesEnabled( FALSE );
+ setUpdatesEnabled(false );
 
  QStringList focuses;
  focuses+="pagespace";
@@ -433,7 +438,7 @@ void OptionWindow::init() {
  for (unsigned int i=0;i<tbs.count();i++) {
   ToolBar* tb=menuSystem->getToolbar(tbs[i]);
   if (!tb) continue; //Someone put invalid toolbar in settings. Just ignore it
-  addOptionBool(tool_tab,tb->label(),QString("toolbar/")+tbs[i],true);
+  addOptionBool(tool_tab,"tb->label()",QString("toolbar/")+tbs[i],true);
  }
  finishTab(tool_tab);
 
@@ -451,10 +456,10 @@ void OptionWindow::init() {
   }
  }
  //Remove . and .. directories
- iconThemes.remove(".");
- iconThemes.remove("..");
+ iconThemes.replaceInStrings(".","");
+ iconThemes.replaceInStrings("..","");
  //theme cannot be named 'default'
- iconThemes.remove("default");
+ iconThemes.replaceInStrings("default","");
  //Sort list
  iconThemes.sort();
  //Remove duplicates
@@ -481,7 +486,7 @@ void OptionWindow::init() {
  addOptionBool (laf_tab,tr("Use big icons"),"icon/theme/big");
  finishTab     (laf_tab);
 
- setUpdatesEnabled( TRUE );
+ setUpdatesEnabled( true );
 }
 
 /** default destructor */
@@ -510,9 +515,11 @@ void applyLookAndFeel(bool notify) {
  QFont fontStatus=QApplication::font();
  fontStatus.fromString(globalSettings->read("gui/font_status",defFont));
  //Set them all
- QApplication::setFont(fontMain,notify);
- QApplication::setFont(fontConsole,notify,"gui::CommandWindow");
- QApplication::setFont(fontStatus,notify,"gui::StatusBar");
+ if (notify) {
+  QApplication::setFont(fontMain);
+  QApplication::setFont(fontConsole, "gui::CommandWindow");
+  QApplication::setFont(fontStatus, "gui::StatusBar");
+ }
 }
 
 /**

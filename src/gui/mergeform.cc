@@ -30,13 +30,16 @@
 #include "mergeform.h"
 #include "pdfutil.h"
 #include "util.h"
-#include <QtCore/QVariant>
-#include <QtWidgets/QPushButton>
-#include <QtWidgets/QLabel>
-#include <QtWidgets/QLineEdit>
-#include <QtWidgets/QFrame>
+#include <QVariant>
+#include <QPushButton>
+#include <QLabel>
+#include <QLineEdit>
+#include <QListWidget>
+#include <QFrame>
 #include QLISTBOX
-#include <QtWidgets/QLayout>
+#include <QListWidget>
+#include <QListWidgetItem>
+#include <QLayout>
 #include <kernel/cpdf.h>
 
 namespace gui {
@@ -81,14 +84,15 @@ struct NodeData {
 class ListItem:public Q_ListBoxText {
         NodeData * nodeData;
 public:
-        ListItem(NodeData * _nodeData, Q_ListBox * _parent, const QString & text = QString::null):Q_ListBoxText(_parent, text), nodeData(_nodeData)
+        ListItem(NodeData * _nodeData, Q_ListBox * _parent, const QString & text = QString::null):Q_ListBoxText(text,_parent ), nodeData(_nodeData)
         {
         }
         ListItem(NodeData * _nodeData, const QString & text = QString::null):Q_ListBoxText(text), nodeData(_nodeData)
         {
         }
-        ListItem(NodeData * _nodeData, Q_ListBox * _parent, const QString & text, Q_ListBoxItem * after):Q_ListBoxText(_parent, text, after), nodeData(_nodeData)
+        ListItem(NodeData * _nodeData, Q_ListBox * _parent, const QString & text,const Q_ListBoxItem * after):Q_ListBoxText(text), nodeData(_nodeData)
         {
+            setText(text);
         }
 
         /** Returns pointer to nodeData field.
@@ -127,32 +131,32 @@ void MergeDialog::mergeList_currentChanged( Q_ListBoxItem * item)
         // original items has to be in same order as in
         // creation time
         if(listItem->isType(NodeData::FROMFILE)) {
-                removeBtn->setEnabled(TRUE);
+                removeBtn->setEnabled(true);
 
                 // up button is enabled only if we are not in first
                 // item
                 if(mergeList->currentItem()>0)
-                        upBtn->setEnabled(TRUE);
+                        upBtn->setEnabled(true);
                 else
-                        upBtn->setEnabled(FALSE);
+                        upBtn->setEnabled(false);
 
                 // down button is enabled only if we are before END page
                 // pageCount includes also already added pages
-                if(mergeList->currentItem()+1 >= pageCount) 
-			downBtn->setEnabled(FALSE);
+                if(mergeList->currentRow()+1 >= pageCount)
+            downBtn->setEnabled(false);
                 else 
-			downBtn->setEnabled(TRUE);
+            downBtn->setEnabled(true);
         } else {
-                upBtn->setEnabled(FALSE);
-                downBtn->setEnabled(FALSE);
-                removeBtn->setEnabled(FALSE);
+                upBtn->setEnabled(false);
+                downBtn->setEnabled(false);
+                removeBtn->setEnabled(false);
         }
 }
 
 
 void MergeDialog::fileList_currentChanged( Q_ListBoxItem * ) {
  // allways enable add button when something is selected
- if(!addBtn->isEnabled()) addBtn->setEnabled(TRUE);
+ if(!addBtn->isEnabled()) addBtn->setEnabled(true);
 }
 
 
@@ -163,44 +167,44 @@ void MergeDialog::addBtn_clicked()
 
         for(int i=fileList->count()-1; i>=0; --i)
         {
-                // skips unselected items
-                if(!fileList->isSelected(i))
-                        continue;
+//                // skips unselected items
+//                if(!fileList->isSelected())
+//                        continue;
 
                 ListItem * fileItem=dynamic_cast<ListItem *>(fileList->item(i));
                 if(!fileItem)
                         continue;
 
                 // removes fileItem from fileList
-                oldPos=fileList->index(fileItem);
+                oldPos=fileList->row(fileItem);
                 oldItem=fileItem;
-                fileList->takeItem(fileItem);
+                fileList->removeItemWidget(fileItem);
                 if(oldPos>=(int)(fileList->count()))
                         // correction for last item in list
                         --oldPos;
 
                 // gets position of selected item in mergeList
-                int pos=mergeList->currentItem();
+                int pos=mergeList->currentRow();
 
                 // increase total page count
                 pageCount++;
 
                 // insert fileItem before currently selected node in mergeList
-                mergeList->insertItem(fileItem, (pos<0)?0:pos);
-                mergeList->setSelected(fileItem, FALSE);
+                mergeList->insertItem((pos<0)?0:pos, fileItem);
+               // mergeList->setSelected(false); Fixed Qt3
         }
 
         // sets new currentItem in mergeList to oldItem
         if(oldItem)
         {
                 mergeList->setCurrentItem(oldItem);
-                mergeList->setSelected(oldItem, TRUE);
+                //mergeList->setSelected(oldItem, true); Fixed Qt3
         }
 
         // nothing has left in fileList box
         if(!fileList->count())
         {
-                addBtn->setEnabled(FALSE);
+                addBtn->setEnabled(false);
                 return;
         }
 
@@ -208,8 +212,8 @@ void MergeDialog::addBtn_clicked()
         // to mergeList
         if(oldPos>=0)
         {
-                fileList->setCurrentItem(oldPos);
-                fileList->setSelected(oldPos, TRUE);
+                fileList->setCurrentRow(oldPos);
+                //fileList->setSelected(true); Fixed Qt3
                 return;
         }
 }
@@ -217,18 +221,18 @@ void MergeDialog::addBtn_clicked()
 
 void MergeDialog::removeBtn_clicked()
 {
-        if(mergeList->selectedItem())
-        {
-                ListItem * mergeItem=dynamic_cast<ListItem *>(mergeList->selectedItem());
+//        if(mergeList->selectedItem())   Fixed QT3
+//        {
+                ListItem * mergeItem=dynamic_cast<ListItem *>(mergeList->currentItem());
                 if(!mergeItem)
                 {
                         // nothing selected
-                        removeBtn->setEnabled(FALSE);
+                        removeBtn->setEnabled(false);
                         return;
                 }
                 // removes item from mergeList
-                int oldPos=mergeList->index(mergeItem);
-                mergeList->takeItem(mergeItem);
+                int oldPos=mergeList->row(mergeItem);
+                mergeList->removeItemWidget(mergeItem);
 
                 // insert to correct position in fileList - keeps ordering
                 int pos=0;
@@ -250,41 +254,41 @@ void MergeDialog::removeBtn_clicked()
 
                 // inserts mergeItem to the correct position and select the next
                 // one in the mergeList
-                fileList->insertItem(mergeItem, pos);
+                fileList->insertItem(pos, mergeItem);
                 // QT3 bug work-around - currentChanged is not triggered when we add
                 // the first item to an empt list - we have to force the handler for
                 // proper enable/disable logic
-                fileList->setCurrentItem(pos);
+                fileList->setCurrentRow(pos);
                 fileList_currentChanged(mergeItem);
-                mergeList->setCurrentItem(oldPos);
-                mergeList->setSelected(oldPos, TRUE);
-        }else
-                removeBtn->setEnabled(FALSE);
+                mergeList->setCurrentRow(oldPos);
+                //mergeList->setSelected(oldPos, true);
+//        }else
+//                removeBtn->setEnabled(false);  Fixed QT3
 }
 
 
 void MergeDialog::upBtn_clicked() {
-        int pos=mergeList->currentItem();
+        int pos=mergeList->currentRow();
         if (pos>0) {
                 // current item can be moved upwards
                 Q_ListBoxItem * item=mergeList->item(pos);
 
                 // removes and insert with decremented position
-                mergeList->takeItem(item);
-                mergeList->insertItem(item, pos-1);
+                mergeList->removeItemWidget(item);
+                mergeList->insertItem(pos-1, item);
                 mergeList->setCurrentItem(item);
-        } else upBtn->setEnabled(FALSE);
+        } else upBtn->setEnabled(false);
 }
 
 
 void MergeDialog::downBtn_clicked() {
-        int pos=mergeList->currentItem();
+        int pos=mergeList->currentRow();
         if (pos+1<pageCount) {
                 Q_ListBoxItem * item=mergeList->item(pos);
-                mergeList->takeItem(item);
-                mergeList->insertItem(item, pos+1);
+                mergeList->removeItemWidget(item);
+                mergeList->insertItem(pos+1, item);
                 mergeList->setCurrentItem(item);
-        } else downBtn->setEnabled(FALSE);
+        } else downBtn->setEnabled(false);
 }
 
 
@@ -301,18 +305,20 @@ void MergeDialog::openBtn_clicked() {
 
         // Open dialog causes disabling fileNameInput and fileNameBtn
         // and enabling merging stuff
-        openBtn->setEnabled(FALSE);
-        fileNameInput->setEnabled(FALSE);
-        fileNameBtn->setEnabled(FALSE);
-        mergeList->setEnabled(TRUE);
-        fileList->setEnabled(TRUE);
-        okBtn->setEnabled(TRUE);
+        openBtn->setEnabled(false);
+        fileNameInput->setEnabled(false);
+        fileNameBtn->setEnabled(false);
+        mergeList->setEnabled(true);
+        fileList->setEnabled(true);
+        okBtn->setEnabled(true);
 }
 
 
 void MergeDialog::fileNameBtn_clicked() {
+// QString fileName = QFileDialog::getOpenFileName(
+//      QString::null, QObject::tr("PDF files (*.pdf)"), this, "file open", tr("Open file with pages to be inserted")); qt3
  QString fileName = QFileDialog::getOpenFileName(
-      QString::null, QObject::tr("PDF files (*.pdf)"), this, "file open", tr("Open file with pages to be inserted"));
+      this, tr("Open file with pages to be inserted"), QString::null,  QObject::tr("PDF files (*.pdf)"));
  if(!fileName.isEmpty()) {
   fileNameInput->setText(fileName);
  }
@@ -392,9 +398,9 @@ bool MergeDialog::initFileList( QString & fileName ) {
  document.reset();
  char itemLabel[128];
  QFileInfo fi(fileName);
- QString baseName=fi.baseName(false);
+ QString baseName=fi.baseName();
  for(size_t i=1; i<=count; ++i) {
-  snprintf(itemLabel, 127, "%s Page%d", baseName.ascii(), (int)i);
+  snprintf(itemLabel, 127, "%s Page%d", baseName.toLatin1(), (int)i);
   //ListItem * listItem=
   new ListItem(new NodeData(NodeData::FROMFILE, i), fileList, itemLabel);
  }
@@ -407,97 +413,120 @@ bool MergeDialog::initFileList( QString & fileName ) {
  *  name 'name' and widget flags set to 'f'.
  *
  *  The dialog will by default be modeless, unless you set 'modal' to
- *  TRUE to construct a modal dialog.
+ *  true to construct a modal dialog.
  */
-MergeDialog::MergeDialog( QWidget* parent, const char* name, bool modal, WFlags fl )
-    : QDialog( parent, name, modal, fl )
+MergeDialog::MergeDialog( QWidget* parent, const char* name, bool modal, Qt::WindowFlags fl )
+    : QDialog( parent, fl )
 {
     if ( !name )
-	setName( "MergeDialog" );
-    MergeDialogLayout = new QGridLayout( this, 1, 1, 11, 6, "MergeDialogLayout");
+    setObjectName("MergeDialog" );
 
-    layout48 = new QVBoxLayout( 0, 0, 6, "layout48");
+    setModal(modal);
+//    QGridLayout ( QWidget * parent, int nRows = 1, int nCols = 1,
+//                  int margin = 0, int space = -1, const char * name = 0 ) qt3
 
-    layout27 = new QHBoxLayout( 0, 0, 6, "layout27");
+    MergeDialogLayout = new QGridLayout( this/*, 1, 1, 11, 6, "MergeDialogLayout"*/);
+    MergeDialogLayout->setSpacing( 6 );
+    MergeDialogLayout->setMargin( 11 );
 
-    textLabel1 = new QLabel( this, "textLabel1" );
-    textLabel1->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, textLabel1->sizePolicy().hasHeightForWidth() ) );
+
+    layout48 = new QVBoxLayout;
+    layout48->setMargin(0);
+    layout48->setSpacing(6);
+
+    layout27 = new QHBoxLayout;
+    layout27->setMargin(0);
+    layout27->setSpacing(6);
+
+    textLabel1 = new QLabel( this);
+    textLabel1->setSizePolicy( QSizePolicy( static_cast<QSizePolicy::Policy>(0), static_cast<QSizePolicy::Policy>(0)) );
     layout27->addWidget( textLabel1 );
 
-    fileNameInput = new QLineEdit( this, "fileNameInput" );
-    fileNameInput->setEnabled( TRUE );
+    fileNameInput = new QLineEdit( this);
+    fileNameInput->setEnabled( true );
     layout27->addWidget( fileNameInput );
 
-    fileNameBtn = new QPushButton( this, "fileNameBtn" );
-    fileNameBtn->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, fileNameBtn->sizePolicy().hasHeightForWidth() ) );
+    fileNameBtn = new QPushButton( this);
+    fileNameBtn->setSizePolicy( QSizePolicy( static_cast<QSizePolicy::Policy>(0), static_cast<QSizePolicy::Policy>(0)) );
     fileNameBtn->setMaximumSize( QSize( 40, 32767 ) );
     layout27->addWidget( fileNameBtn );
     layout48->addLayout( layout27 );
 
-    layout2 = new QHBoxLayout( 0, 0, 6, "layout2");
+    layout2 = new QHBoxLayout;
+    layout2->setMargin(0);
+    layout2->setSpacing(6);
     spacer1 = new QSpacerItem( 131, 21, QSizePolicy::Expanding, QSizePolicy::Minimum );
     layout2->addItem( spacer1 );
 
-    openBtn = new QPushButton( this, "openBtn" );
-    openBtn->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, openBtn->sizePolicy().hasHeightForWidth() ) );
+    openBtn = new QPushButton( this);
+    openBtn->setSizePolicy( QSizePolicy( static_cast<QSizePolicy::Policy>(0), static_cast<QSizePolicy::Policy>(0)) );
     layout2->addWidget( openBtn );
     spacer2 = new QSpacerItem( 151, 21, QSizePolicy::Expanding, QSizePolicy::Minimum );
     layout2->addItem( spacer2 );
     layout48->addLayout( layout2 );
 
-    line1 = new QFrame( this, "line1" );
+    line1 = new QFrame( this);
     line1->setFrameShape( QFrame::HLine );
     line1->setFrameShadow( QFrame::Sunken );
     line1->setFrameShape( QFrame::HLine );
     layout48->addWidget( line1 );
 
-    layout47 = new QHBoxLayout( 0, 0, 6, "layout47");
+    layout47 = new QHBoxLayout;
+    layout47->setMargin(0);
+    layout47->setSpacing(6);
 
-    mergeList = new Q_ListBox( this, "mergeList" );
-    mergeList->setEnabled( FALSE );
+    mergeList = new Q_ListBox( this);
+    mergeList->setEnabled( false );
     layout47->addWidget( mergeList );
 
-    layout4 = new QVBoxLayout( 0, 0, 6, "layout4");
+    layout4 = new QVBoxLayout;
+    layout4->setMargin(0);
+    layout4->setSpacing(6);
 
-    addBtn = new QPushButton( this, "addBtn" );
-    addBtn->setEnabled( FALSE );
+    addBtn = new QPushButton( this);
+    addBtn->setEnabled( false );
     layout4->addWidget( addBtn );
 
-    removeBtn = new QPushButton( this, "removeBtn" );
-    removeBtn->setEnabled( FALSE );
+    removeBtn = new QPushButton( this);
+    removeBtn->setEnabled( false );
     layout4->addWidget( removeBtn );
     spacer3 = new QSpacerItem( 20, 20, QSizePolicy::Minimum, QSizePolicy::Expanding );
     layout4->addItem( spacer3 );
 
-    upBtn = new QPushButton( this, "upBtn" );
-    upBtn->setEnabled( FALSE );
+    upBtn = new QPushButton( this);
+    upBtn->setEnabled( false );
     layout4->addWidget( upBtn );
 
-    downBtn = new QPushButton( this, "downBtn" );
-    downBtn->setEnabled( FALSE );
+    downBtn = new QPushButton( this);
+    downBtn->setEnabled( false );
     layout4->addWidget( downBtn );
     layout47->addLayout( layout4 );
 
-    fileList = new Q_ListBox( this, "fileList" );
-    fileList->setEnabled( FALSE );
+    fileList = new Q_ListBox( this);
+    fileList->setEnabled( false );
     fileList->setFrameShape( Q_ListBox::StyledPanel );
-    fileList->setSelectionMode( Q_ListBox::Extended );
+    fileList->setSelectionMode( Q_ListBox::ExtendedSelection );
     layout47->addWidget( fileList );
     layout48->addLayout( layout47 );
+//    QHBoxLayout ( QWidget * parent, int margin = 0, int spacing = -1, const char * name = 0 ) qt3
 
-    layout6 = new QHBoxLayout( 0, 0, 5, "layout6");
+    layout6 = new QHBoxLayout;
+    layout6->setMargin(0);
+    layout6->setSpacing(5);
+
+
 
     spacer5 = new QSpacerItem( 61, 21, QSizePolicy::Expanding, QSizePolicy::Minimum );
     layout6->addItem( spacer5 );
 
-    okBtn = new QPushButton( this, "okBtn" );
-    okBtn->setEnabled( FALSE );
+    okBtn = new QPushButton( this);
+    okBtn->setEnabled( false );
     layout6->addWidget( okBtn );
 
     spacer6 = new QSpacerItem( 41, 21, QSizePolicy::Expanding, QSizePolicy::Minimum );
     layout6->addItem( spacer6 );
 
-    cancelBtn = new QPushButton( this, "cancelBtn" );
+    cancelBtn = new QPushButton( this);
     layout6->addWidget( cancelBtn );
 
     layout48->addLayout( layout6 );
@@ -520,8 +549,8 @@ MergeDialog::MergeDialog( QWidget* parent, const char* name, bool modal, WFlags 
     connect( mergeList, SIGNAL( currentChanged(QListBoxItem*) ), this, SLOT( mergeList_currentChanged(QListBoxItem*) ) );
     connect( fileList, SIGNAL( currentChanged(QListBoxItem*) ), this, SLOT( fileList_currentChanged(QListBoxItem*) ) );
 #else
-    connect( mergeList, SIGNAL( currentChanged(Q3ListBoxItem*) ), this, SLOT( mergeList_currentChanged(Q3ListBoxItem*) ) );
-    connect( fileList, SIGNAL( currentChanged(Q3ListBoxItem*) ), this, SLOT( fileList_currentChanged(Q3ListBoxItem*) ) );
+    connect( mergeList, SIGNAL( currentItemChanged(QListBoxItem*, QListBoxItem*) ), this, SLOT( mergeList_currentChanged(QListBoxItem*) ) );
+    connect( fileList, SIGNAL( currentItemChanged(QListBoxItem*, QListBoxItem*) ), this, SLOT( fileList_currentChanged(QListBoxItem*) ) );
 #endif
 
     // tab order
@@ -550,21 +579,21 @@ MergeDialog::~MergeDialog() {
  *  language.
  */
 void MergeDialog::languageChange() {
- setCaption(tr("Insert pages from another document"));
+ setWindowTitle(tr("Insert pages from another document"));
  textLabel1->setText(tr("&Filename"));
  fileNameBtn->setText("...");
  openBtn->setText(QObject::tr("&Open"));
- openBtn->setAccel(QKeySequence("Alt+O"));
+ openBtn->setShortcut(QKeySequence("Alt+O"));
  addBtn->setText("<<");
  removeBtn->setText(">>");
  upBtn->setText(QObject::tr("&Up"));
- upBtn->setAccel(QKeySequence("Alt+U"));
+ upBtn->setShortcut(QKeySequence("Alt+U"));
  downBtn->setText(QObject::tr("&Down"));
- downBtn->setAccel(QKeySequence("Alt+D"));
+ downBtn->setShortcut(QKeySequence("Alt+D"));
  cancelBtn->setText(QObject::tr("&Cancel"));
- cancelBtn->setAccel(QKeySequence("Alt+C"));
+ cancelBtn->setShortcut(QKeySequence("Alt+C"));
  okBtn->setText(QObject::tr("&Ok"));
- okBtn->setAccel(QKeySequence("Alt+O"));
+ okBtn->setShortcut(QKeySequence("Alt+O"));
 }
 
 } //namespace gui

@@ -21,15 +21,13 @@
 #endif
 
 #include <stdlib.h>
+#include <poppler/poppler-config.h>
 #include <poppler/GfxState.h>
 
-#include <qpixmap.h>
-#include <qimage.h>
-
-//#include <kdebug.h>
-
-#include "splash/SplashBitmap.h"
-#include "splash/SplashTypes.h"
+#include <QPixmap>
+#include <QImage>
+#include <poppler/splash/SplashBitmap.h>
+#include <poppler/splash/SplashTypes.h>
 
 #include "QOutputDevPixmap.h"
 
@@ -60,7 +58,7 @@ void QOutputDevPixmap::endPage ( )
 	int pc = bh * bw;
 	free(raw_image);
 	if ((raw_image = (Guchar *)malloc( pc * 4 )) == NULL) {
-		m_image.reset();
+//        m_image.load();
 		return;
 	}
 	int h_bgr  = 0;
@@ -76,6 +74,6 @@ void QOutputDevPixmap::endPage ( )
 	dataPtr = raw_image;
 	//  -- end the block --
 
-	m_image = QImage((uchar*)dataPtr/*.rgb8*/, bw, bh, 32, 0, 0, QImage::IgnoreEndian);
+    m_image = QImage((uchar*)dataPtr/*.rgb8*/, bw, bh, 32, QImage::Format_Invalid);
 
 }

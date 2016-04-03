@@ -28,11 +28,11 @@
 */
 
 #include "helpwindow.h"
-#include <QtWidgets/QLayout>
-#include <QtWidgets/QLabel>
-#include <QtWidgets/QLineEdit>
-#include <QtWidgets/QPushButton>
-#include <QtCore/QString>
+#include <QLayout>
+#include <QLabel>
+#include <QLineEdit>
+#include <QPushButton>
+#include <QString>
 #include QTEXTBROWSER
 #include "settings.h"
 #include "version.h"
@@ -46,23 +46,25 @@ namespace gui {
  @param parent Parent of this window
  @param name Name of this window (for debugging)
 */
-HelpWindow::HelpWindow(const QString &pageName/*=QString::null*/,QWidget *parent/*=0*/,const char *name/*=0*/):QWidget(parent,name,Qt::WDestructiveClose | Qt::WType_TopLevel | Qt::WStyle_Minimize | Qt::WStyle_SysMenu | Qt::WStyle_Title | Qt::WStyle_Customize | Qt::WStyle_NormalBorder) {
+HelpWindow::HelpWindow(const QString &pageName/*=QString::null*/,QWidget *parent/*=0*/,const char *name/*=0*/):QWidget(parent/*, Qt::WindowMaximized*//*name,*//*Qt::WA_DeleteOnClose | Qt::WA_PaintOnScreen | Qt::WindowMinimizeButtonHint | Qt::WindowSystemMenuHint | Qt::WindowTitleHint | Qt::CustomizeWindowHint*//* | Qt::WStyle_NormalBorder*/) {
  globalSettings->restoreWindow(this,"help");
- setCaption(QString(APP_NAME)+" - "+tr("help"));
+ setWindowTitle(QString(APP_NAME)+" - "+tr("help"));
 // QBoxLayout *l=new QVBoxLayout(this);
- QGridLayout* grl=new QGridLayout(this,2,1);
+ QGridLayout* grl=new QGridLayout(this/*,2,1*/);
+// grl->setMargin(0);
+// grl->setSpacing(6);
  grl->setRowStretch(0,0);
  grl->setRowStretch(1,1);
 
  //Help bar;
- QFrame *bar=new QFrame(this,"help_bar");
- QGridLayout* grl_u=new QGridLayout(bar,1,3);
- grl_u->setColStretch(1,100);
+ QFrame *bar=new QFrame(this);
+ QGridLayout* grl_u=new QGridLayout(bar/*,1,3*/);
+ grl_u->setColumnStretch(1,100);
  grl_u->setSpacing(4);
  grl_u->setMargin(2);
- QPushButton* btIndex=new QPushButton(QObject::tr("&Index"),bar,"help_index");
- QPushButton* btClose=new QPushButton(QObject::tr("&Close"),bar,"help_close");
- url=new QLineEdit(pageName,bar,"help_url");
+ QPushButton* btIndex=new QPushButton(QObject::tr("&Index"),bar);
+ QPushButton* btClose=new QPushButton(QObject::tr("&Close"),bar);
+ url=new QLineEdit(pageName,bar);
  grl_u->addWidget(btIndex,0,0);
  grl_u->addWidget(url,0,1);
  grl_u->addWidget(btClose,0,2);
@@ -71,10 +73,10 @@ HelpWindow::HelpWindow(const QString &pageName/*=QString::null*/,QWidget *parent
  QObject::connect(btClose,  SIGNAL(clicked()), this, SLOT(close()));
 
  //Help window
- help=new Q_TextBrowser(this,"help_browser");
+ help=new Q_TextBrowser(this);
  grl->addWidget(help,1,0);
 
- help->mimeSourceFactory()->setFilePath(globalSettings->readPath("help"));
+ help->setSearchPaths(globalSettings->readPath("help"));
  help->setFrameStyle(QFrame::Panel | QFrame::Sunken);
  connect(help,SIGNAL(sourceChanged(const QString&)),url,SLOT(setText(const QString&)));
  connect(url, SIGNAL(returnPressed()),this,SLOT(goUrl()));

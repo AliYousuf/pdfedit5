@@ -24,7 +24,7 @@
 #ifndef __ABOUTWINDOW_H__
 #define __ABOUTWINDOW_H__
 
-#include <QtWidgets/QWidget>
+#include <QWidget>
 
 namespace gui {
 
@@ -38,7 +38,7 @@ class IconCache;
 class AboutWindow : public QWidget {
 Q_OBJECT
 public:
- AboutWindow(QWidget *parent=0,const char *name=0);
+ AboutWindow(QWidget *parent=0);
  ~AboutWindow();
 private:
  /** Iconcache, must exist as long as the window exists */

@@ -28,12 +28,13 @@
 
 #include "configutils.h"
 
-#include <qfile.h>
-#include <qprocess.h>
-#include <qdir.h>
-#include <qstringlist.h>
-#include <qregexp.h>
-#include <qapplication.h>
+#include <QDir>
+#include <QFile>
+#include <QProcess>
+#include <QStringList>
+#include <QString>
+#include <QDebug>
+#include <QApplication>
 #include <stdlib.h>
 #ifdef Q_WS_WIN
 #include <windows.h>
@@ -43,26 +44,31 @@ static const char *app = 0;
 
 static void dumpMessages()
 {
-    qWarning( messages().join( "\n" ) );
+
+    qWarning() << messages().join( "\n" );
 }
 
 static void dumpMessagesStdout()
 {
-    printf("%s\n", messages().join( "\n" ).ascii() );
+    QString str1 = messages().join( "\n" );
+    QByteArray ba = str1.toLatin1();
+    const char *c_str2 = ba.data();
+    printf("%s\n",c_str2);
 }
 
 
 int main( int argc, char **argv )
 {
     app = argv[0];
-    QApplication qapp( argc, argv, FALSE );
+    QApplication qapp(argc, argv);
+    QStringList args = qapp.arguments();
 
     QStringList antiConfigs;
     QStringList configs;
     QString prefix;
-    bool buildIde = TRUE;
-    for ( int i = 1; i < qapp.argc(); i++ ) {
-	QString arg = qapp.argv()[i];
+    bool buildIde = true;
+    for ( int i = 1; i < args.count(); i++ ) {
+    QString arg = QString::fromLocal8Bit(argv[i]);/*qapp.argv()[i];*/
 	if ( arg.startsWith( "--" ) )
 	    arg = arg.mid( 1 );
 	if ( arg == "-help"  ) {
@@ -70,14 +76,14 @@ int main( int argc, char **argv )
 	} else if ( arg == "-thread" ) {
 	    configs << "thread";
 	} else if ( arg == "-prefix" ) {
-	    if ( i + 1 < qapp.argc() ) {
-		prefix = qapp.argv()[++i];
+        if ( i + 1 < args[i].toInt()) {
+        prefix = argv[++i];
 	    } else {
 		qWarning( "-prefix option requires path argument" );
 		exit( 2 );
 	    }
 	} else if ( arg == "-no-ide" ) {
-	    buildIde = FALSE;
+        buildIde = false;
 	    configs << "noide";
 
         } else if (arg == "-release") {
@@ -85,8 +91,8 @@ int main( int argc, char **argv )
             antiConfigs << "debug";
 
         } else if (arg == "-qmake") {
-	    if ( i + 1 < qapp.argc() ) {
-                setQMake(qapp.argv()[++i]);
+        if ( i + 1 < args[i].toInt() ) {
+                setQMake(argv[++i]);
 	    } else {
 		qWarning( "-qmake option requires argument" );
 		exit( 2 );
@@ -97,7 +103,7 @@ int main( int argc, char **argv )
             antiConfigs << "release";
 
 	} else {
-	    qWarning( "Unknown option: %s", qapp.argv()[i] );
+        qWarning( "Unknown option: %s", argv[i] );
 	    exit( 1 );
 	}
     }

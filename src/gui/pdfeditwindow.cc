@@ -261,7 +261,7 @@ QProgressBar * PdfEditWindow::getProgressBar() {
  @param name name of widget (currently unused)
  @param fName Name of file to open in this window. If empty or null, no file will be opened
  */
-PdfEditWindow::PdfEditWindow(const QString &fName/*=QString::null*/,QWidget *parent/*=0*/,const char *name/*=0*/):QMainWindow(parent,name,Qt::WDestructiveClose | Qt::WType_TopLevel) {
+PdfEditWindow::PdfEditWindow(const QString &fName/*=QString::null*/,QWidget *parent/*=0*/,const char *name/*=0*/):QMainWindow(parent,name,Qt::WA_DeleteOnClose | /*Qt::WType_TopLevel */Qt::WA_PaintOnScreen ) {
  //Set the initial title
  setFileName(QString::null);
  document=boost::shared_ptr<CPdf>();
@@ -758,7 +758,7 @@ bool PdfEditWindow::saveCopy(const QString &name) {
 void PdfEditWindow::setFileName(const QString &name) {
  fileName=name;
  if (name.isNull()) { //No name
-  setCaption(QString(APP_NAME)+" "+QString(PDFEDIT_VERSION));
+  setWindowTitle(QString(APP_NAME)+" "+QString(PDFEDIT_VERSION));
   baseName=QString::null;
   return;
  }
@@ -784,7 +784,7 @@ void PdfEditWindow::setTitle(int revision/*=0*/) {
  if (docFlags.count()) {
   docInfo=" ( "+docFlags.join(", ")+" )";
  }
- setCaption(QString(APP_NAME)+" - "+baseName+revisionInfo+docInfo);
+ setWindowTitle(QString(APP_NAME)+" - "+baseName+revisionInfo+docInfo);
 }
 
 /** Closes file currently opened in editor, without opening new empty one */

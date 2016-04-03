@@ -35,8 +35,8 @@
 #include "qstreeitem.h"
 #include "settings.h"
 #include <qsinterpreter.h>
-#include <QtCore/QString>
-#include <QtCore/QStringList>
+#include <QString>
+#include <QStringList>
 #include <qsutilfactory.h>
 #include <qsinputdialogfactory.h>
 #include <utils/debug.h>
@@ -412,7 +412,7 @@ void BaseCore::addTreeItemToList(QSTreeItem* theWrap) {
 
  //Get inner dictionary for the treeitem (dict of all wrappers for given treeitem)
  // Some wrappers may already exist for this treeitem
- Q_PtrDict<void>* pDict=treeWrap[theItem];
+ Q_PtrDict<void,TreeItemAbstract >* pDict=treeWrap[theItem];
 
  if (!pDict) {	//No wrappers for this yet ....
   //We must create and insert inner dictionary for this tree item

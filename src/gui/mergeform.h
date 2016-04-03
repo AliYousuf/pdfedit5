@@ -25,9 +25,10 @@
 #define __MERGEFORM_H__
 
 #include "qtcompat.h"
-#include <QtCore/QVariant>
-#include <qdialog.h>
-#include <qfiledialog.h>
+#include <QListWidget>
+#include <QVariant>
+#include <QDialog>
+#include <QFileDialog>
 
 class QVBoxLayout;
 class QHBoxLayout;
@@ -164,9 +165,9 @@ class MergeDialog : public QDialog {
     Q_OBJECT
 
     // TODO get rid of this and use mergeList::count instead
-    size_t pageCount;
+    int pageCount;
 public:
-    MergeDialog( QWidget* parent = 0, const char* name = 0, bool modal = FALSE, WFlags fl = 0 );
+    MergeDialog( QWidget* parent = 0, const char* name = 0, bool modal = false, Qt::WindowFlags fl = 0 );
     ~MergeDialog();
 
     QLabel* textLabel1;
@@ -235,15 +236,12 @@ public:
 
 public slots:
     // Events handlers
-#ifdef QT3
-    virtual void mergeList_currentChanged( QListBoxItem * item );
-    virtual void fileList_currentChanged( QListBoxItem * );
-#else
+
 //MOC_SKIP_BEGIN (Qt3 moc will skip this. Qt4 moc won't and it is able to understande ifdef. Good)
-    virtual void mergeList_currentChanged( Q3ListBoxItem * item );
-    virtual void fileList_currentChanged( Q3ListBoxItem * );
+    virtual void mergeList_currentChanged( Q_ListBoxItem  * item );
+    virtual void fileList_currentChanged( Q_ListBoxItem  * );
 //MOC_SKIP_END
-#endif
+
     /** Slot called when button "<<" to add page to current document is clicked */
     virtual void addBtn_clicked();
     /** Slot called when button ">>" to remove page from current document is clicked */

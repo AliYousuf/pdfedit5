@@ -113,7 +113,7 @@ private:
  /** List of property names */
  QStringList *list;
  /** Dictionary with property items */
- Q_Dict<Property> *items;
+ Q_Dict<QString, Property> *items;
  /** Dictionary with IProperty items */
  QMap<QString,boost::shared_ptr<IProperty> > *props;
  /** Dictionary with Row numbers for proerties */
@@ -121,7 +121,7 @@ private:
  /** Dictionary with labes for properties*/
  QMap<QWidget*,QLabel*> propLabel;
  /** Dictionary with property labels */
- Q_Dict<QLabel> *labels;
+ Q_Dict<QString, QLabel> *labels;
  /** PropertyModeController - modecontroller wrapper instance */
  PropertyModeController *mode;
  /** Show hidden properties */

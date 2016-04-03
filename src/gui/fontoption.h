@@ -24,8 +24,8 @@
 #ifndef __FONTOPTION_H__
 #define __FONTOPTION_H__
 
-#include <QtCore/QString>
-#include <QtWidgets/QWidget>
+#include <QString>
+#include <QWidget>
 
 #include "dialogoption.h"
 class QString;

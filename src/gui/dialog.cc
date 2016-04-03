@@ -34,14 +34,14 @@
 #include "dialog.h"
 #include "settings.h"
 #include "version.h"
-#include <QtCore/QDir>
-#include <QtWidgets/QInputDialog>
-#include <QtWidgets/QMessageBox>
-#include <QtWidgets/QFileDialog>
-#include <QtWidgets/QColorDialog>
-#include <QtCore/QFileInfo>
+#include <QDir>
+#include <QInputDialog>
+#include <QMessageBox>
+#include <QFileDialog>
+#include <QColorDialog>
+#include <QFileInfo>
 #include <utils/debug.h>
-#include <QtCore/QString>
+#include <QString>
 #include "util.h"
 
 namespace gui {
@@ -58,7 +58,7 @@ QString getDir(QFileDialog &fd) {
  delete d;
 #else
  QDir d=fd.directory();
- QString name=d.absPath();
+ QString name=d.absolutePath();
 #endif
  return name;
 }
@@ -83,20 +83,20 @@ QString openFileDialog(QWidget* parent,const QString &caption/*=QString::null*/,
 #endif
  if (!filters.isNull()) {
   //Set filters if filters specified
-  fd.setFilter(filters);
+  fd.filterSelected(filters);
  }
 #ifdef QT3
  fd.setShowHiddenFiles(TRUE);
 #endif
- if (!caption.isNull()) fd.setCaption(caption);
+ if (!caption.isNull()) fd.setWindowTitle(caption);
  if (savePath.isNull()) {
   //No save path specified -> start in current directory
-  fd.setDir(".");
+  fd.setDirectory(".");
  } else {
   //Try to set last used saved path, if it exists
-  fd.setDir(globalSettings->read("history/path/"+savePath,"."));
+  fd.setDirectory(globalSettings->read("history/path/"+savePath,"."));
  }
- fd.setMode(QFileDialog::ExistingFile);
+ fd.setFileMode(QFileDialog::ExistingFile);
 
  // "Infinite" loop, to restart the dialog if necessary (invalid file selected, etc ... )
  for(;;) {
@@ -116,10 +116,10 @@ QString openFileDialog(QWidget* parent,const QString &caption/*=QString::null*/,
      globalSettings->write("history/path/"+savePath,getDir(fd));
     }
    }
-   QString name=fd.selectedFile();
+   QString name=fd.selectedNameFilter() ;
     if (QFileInfo(name).isDir()) { //directory was selected
      //TODO: test this !
-     fd.setDir(name);
+     fd.setDirectory(name);
      continue;//restart dialog
     }
    return name;
@@ -159,18 +159,18 @@ QString saveFileDialog(QWidget* parent,const QString &oldname,bool askOverwrite/
 #endif
  if (!filters.isNull()) {
   //Set filters if filters specified
-  fd.setFilter(filters);
+  fd.selectNameFilter(filters);
  }
 #ifdef QT3
  fd.setShowHiddenFiles(TRUE);
 #endif
- if (!caption.isNull()) fd.setCaption(caption);
+ if (!caption.isNull()) fd.setWindowTitle(caption);
  if (savePath.isNull()) {
   //No save path specified -> start in current directory
-  fd.setDir(".");
+  fd.setDirectory(".");
  } else {
   //Try to set last used saved path, if it exists
-  fd.setDir(globalSettings->read("history/path/"+savePath,"."));
+  fd.setDirectory(globalSettings->read("history/path/"+savePath,"."));
  }
  if (!oldname.isNull()) {
 #ifdef QT3
@@ -179,7 +179,7 @@ QString saveFileDialog(QWidget* parent,const QString &oldname,bool askOverwrite/
   fd.selectFile(oldname);
 #endif
  }
- fd.setMode(QFileDialog::AnyFile);
+ fd.setFileMode(QFileDialog::AnyFile);
  //Name that will hold the file (if some is picked)
  QString name;
  // "Infinite" loop, to restart the dialog if necessary (invalid file selected, etc ... )
@@ -193,7 +193,7 @@ QString saveFileDialog(QWidget* parent,const QString &oldname,bool askOverwrite/
     // Save window position to settings if applicable
     globalSettings->saveWindow(&fd,settingName);
    }
-   name=fd.selectedFile();
+   name=fd.selectedNameFilter();
    //TODO: check if not directory
    if (askOverwrite && QFile::exists(name)) {
     //File exists : ask if it should be overwritten
@@ -263,8 +263,9 @@ QString saveFileDialogXml(QWidget* parent,const QString &oldname,bool askOverwri
  @return typed text, or NULL if dialog cancelled
  */
 QString readStringDialog(QWidget* parent,const QString &message, const QString &def) {
- bool ok=FALSE;
- QString res=QInputDialog::getText(APP_NAME,message,QLineEdit::Normal,def,&ok,parent,"read_string");
+ bool ok= false;
+ QString res = QInputDialog::getText(parent,"read_string" ,message, QLineEdit::Normal,def, &ok);
+
  if (ok) return res;
  return QString::null;
 }

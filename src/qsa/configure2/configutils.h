@@ -1,9 +1,9 @@
 #ifndef CONFIGUTILS_H
 #define CONFIGUTILS_H
 
-#include <qstring.h>
-#include <qstringlist.h>
-#include <qdir.h>
+#include <QString>
+#include <QStringList>
+#include <QDir>
 
 extern QString *qtDir;
 extern int processes;

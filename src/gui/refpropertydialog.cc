@@ -50,12 +50,12 @@ using namespace util;
 RefPropertyDialog::RefPropertyDialog(boost::weak_ptr<CPdf> _pdf,IndiRef src, QWidget *parent/*=0*/) : QDialog (parent,"refproperty_dialog",true) {
  pdf=_pdf;
  value=src;
- setCaption(tr("Reference target"));
+ setWindowTitle(tr("Reference target"));
  QGridLayout *l=new QGridLayout(this,4,2,8);
 
  //The prompt
  QLabel *lbDesc=new QLabel(tr("Choose target for indirect reference"), this);
- l->addMultiCellWidget(lbDesc,0,0,0,1);
+ l->addWidget(lbDesc,0,0,0,1);
 
  //Edit widgets
  QLabel *lbNum=new QLabel(tr("Object number"), this);
@@ -73,7 +73,7 @@ RefPropertyDialog::RefPropertyDialog(boost::weak_ptr<CPdf> _pdf,IndiRef src, QWi
 
  //Error/informational message
  infoText=new QLabel("", this);
- l->addMultiCellWidget(infoText,3,3,0,1);
+ l->addWidget(infoText,3,3,0,1);
 
  //Lower frame with Ok & Cancel button
  QFrame *okFrame=new QFrame(this);
@@ -82,7 +82,7 @@ RefPropertyDialog::RefPropertyDialog(boost::weak_ptr<CPdf> _pdf,IndiRef src, QWi
  lFrame->addWidget(ok,0,0);
  QPushButton *cancel=new QPushButton(QObject::tr("&Cancel"), okFrame);
  lFrame->addWidget(cancel,0,1);
- l->addMultiCellWidget(okFrame,4,4,0,1);
+ l->addWidget(okFrame,4,4,0,1);
 
  //Connect signals
  QObject::connect(ok, SIGNAL(clicked()), this, SLOT(maybeAccept()));

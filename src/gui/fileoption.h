@@ -24,8 +24,8 @@
 #ifndef __FILEOPTION_H__
 #define __FILEOPTION_H__
 
-#include <QtCore/QString>
-#include <QtWidgets/QWidget>
+#include <QString>
+#include <QWidget>
 
 #include "dialogoption.h"
 class QString;

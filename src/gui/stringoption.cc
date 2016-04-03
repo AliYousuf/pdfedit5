@@ -29,9 +29,11 @@
 
 #include "stringoption.h"
 #include <utils/debug.h>
-#include <QtCore/QString>
-#include <QtCore/QEvent>
-#include <QtWidgets/QLineEdit>
+#include <QString>
+#include <QEvent>
+#include <QSize>
+#include <QLineEdit>
+#include <QResizeEvent>
 #include "settings.h"
 #include "util.h"
 
@@ -44,7 +46,7 @@ namespace gui {
  */
 StringOption::StringOption(const QString &_key/*=0*/,QWidget *parent/*=0*/,const QString &defValue/*=QString::null*/)
  : Option (_key,parent) {
- ed=new QLineEdit(this,"option_edit");
+ ed=new QLineEdit(this);
  if (!defValue.isNull()) ed->setText(defValue);
  connect(ed,SIGNAL(textChanged(const QString&)),this,SLOT(enableChange(const QString&)));
 }
@@ -88,6 +90,7 @@ QSize StringOption::sizeHint() const {
  Called on resizing of option editing control
  Will simply set the same fixed size to inner editbox
  @param e resize event
+
  */
 void StringOption::resizeEvent (QResizeEvent *e) {
  ed->setFixedSize(e->size());

@@ -64,11 +64,11 @@ PropertyEditor::PropertyEditor(QWidget *parent /*=0*/, const char *name /*=0*/) 
  //create list of properties in this editor;
  list=new QStringList();
  //create property dictionary
- items=new Q_Dict<Property>();
+ items=new Q_Dict<QString, Property>();
  //create IProperty dictionary
  props=new QMap<QString,boost::shared_ptr<IProperty> > ();
  //create labels dictionary
- labels=new Q_Dict<QLabel>();
+ labels=new Q_Dict<QString, QLabel>();
  //number of objects - empty
  nObjects=0;
  //Set some minimum height to be at least somewhat visible
@@ -96,8 +96,8 @@ void PropertyEditor::createLayout() {
  gridl->setMargin(3);
  scroll->addChild(grid);
  //set key column to be fixed and value column to be expandable
- gridl->setColStretch(0,0);
- gridl->setColStretch(1,1);
+ gridl->setColumnStretch(0,0);
+ gridl->setColumnStretch(1,1);
 }
 
 /**
@@ -118,16 +118,16 @@ void PropertyEditor::clear() {
  rowNum.clear();
  propLabel.clear();
  //clear properties in property dictionary
- Q_DictIterator<Property> itp(*items);
- for (;itp.current();++itp) {
-  gridl->remove(itp.current());
-  delete itp.current();
+ Q_DictIterator<QString, Property*> itp(*items);
+ for (;itp.hasNext();itp.next()) {
+  gridl->remove(itp.hasNext());
+  delete itp.hasNext();
  }
  //clear labels in label dictionary
- Q_DictIterator<QLabel> itl(*labels);
- for (;itl.current();++itl) {
-  gridl->remove(itl.current());
-  delete itl.current();
+ Q_DictIterator<QString, QLabel*> itl(*labels);
+ for (;itl.hasNext();itl.next()) {
+  gridl->remove(itl.hasNext());
+  delete itl.hasNext();
  }
  //remove all items from grid if there is something left just to be sure its empty
  QObjectList *gl=grid->queryList(0,0,FALSE,FALSE);
@@ -185,7 +185,7 @@ void PropertyEditor::addProperty(Property *prop,boost::shared_ptr<IProperty> val
  label->setTextFormat(Qt::PlainText);
  int labelHeight=label->sizeHint().height();
  int propHeight=prop->sizeHint().height();
- gridl->setRowSpacing(nObjects,MAX(labelHeight,propHeight));
+ gridl->setRowMinimumHeight(nObjects,MAX(labelHeight,propHeight));
  gridl->addWidget(label,nObjects,0);
  gridl->addWidget(prop,nObjects,1);
  rowNum.insert(prop,nObjects);
@@ -211,11 +211,11 @@ void PropertyEditor::fixPropertyHeight(Property *pr) {
  int row=rowNum[pr];
  QLabel *label=propLabel[pr];
  if (pr->isHidden()) {
-  gridl->setRowSpacing(row,1);
+  gridl->setRowMinimumHeight(row,1);
  } else {
   int labelHeight=label->sizeHint().height();
   int propHeight=pr->sizeHint().height();
-  gridl->setRowSpacing(row,MAX(labelHeight,propHeight));
+  gridl->setRowMinimumHeight(row,MAX(labelHeight,propHeight));
  }
 }
 /** Add single property to the widget
@@ -240,8 +240,8 @@ void PropertyEditor::appendMessage(const QString &message) {
  QLabel *label=new QLabel(message,grid);
  label->setTextFormat(Qt::RichText);
  int labelHeight=label->sizeHint().height();
- gridl->setRowSpacing(nObjects,labelHeight);
- gridl->addMultiCellWidget(label,nObjects,nObjects,0,1);
+ gridl->setRowMinimumHeight(nObjects,labelHeight);
+ gridl->addWidget(label,nObjects,nObjects,0,1);
  nObjects++;
  list->append(name);
  labels->insert(name,label);
@@ -470,10 +470,10 @@ PropertyEditor::~PropertyEditor() {
  @param _editReadOnly Edit read-only properties
 */
 void PropertyEditor::override(bool _showHidden,bool _editReadOnly) {
- Q_DictIterator<Property> itp(*items);
- for (;itp.current();++itp) {
-  itp.current()->override(_showHidden,_editReadOnly);
-  fixPropertyHeight(itp.current());
+ Q_DictIterator<QString, Property*> itp(*items);
+ for (;itp.hasNext()itp.next()) {
+  itp.hasNext()->override(_showHidden,_editReadOnly);
+  fixPropertyHeight(itp.hasNext());
  }
 }
 

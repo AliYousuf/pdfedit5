@@ -29,10 +29,10 @@
 #include "colortool.h"
 #include "settings.h"
 #include "toolbutton.h"
-#include <QtWidgets/QColorDialog>
-#include <QtGui/QPixmap>
+#include <QColorDialog>
+#include <QPixmap>
 #include <utils/debug.h>
-#include <QtCore/QEvent>
+#include <QEvent>
 
 namespace gui {
 

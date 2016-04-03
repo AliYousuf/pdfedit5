@@ -84,7 +84,7 @@ TreeItemDragObject::~TreeItemDragObject(){
  @param name Widget name
  @param f Widget flags
  */
-DragListView::DragListView(QWidget *parent,const char *name/*=0*/,WFlags f/*=0*/) : QListView(parent,name,f) {
+DragListView::DragListView(QWidget *parent,const char *name/*=0*/,Qt::WindowFlags f/*=0*/) : QListView(parent,name,f) {
  //Empty constructor
  setAcceptDrops(true);
  viewport()->setAcceptDrops(true); //Hmm ... why is THIS needed too?

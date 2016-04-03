@@ -26,19 +26,19 @@
  This dialog is used to add annotation in PDF document
 */
 
-#include <QtCore/QVariant>
-#include <QtWidgets/QPushButton>
-#include <QtWidgets/QWidget>
-#include <QtWidgets/QCheckBox>
-#include <QtWidgets/QLineEdit>
-#include <QtWidgets/QCombobox>
-#include <QtWidgets/QFrame>
-#include <QtWidgets/QLayout>
-#include <QtWidgets/QTooltip>
-#include <QtWidgets/QWhatsThis>
-#include <QtGui/QImage>
-#include <QtGui/QPixmap>
-#include <QtWidgets/QTabWidget>
+#include <QVariant>
+#include <QPushButton>
+#include <QWidget>
+#include <QCheckBox>
+#include <QLineEdit>
+#include <QComboBox>
+#include <QFrame>
+#include <QLayout>
+#include <QToolTip>
+#include <QWhatsThis>
+#include <QImage>
+#include <QPixmap>
+#include <QTabWidget>
 
 #include "annotdialog.h"
 #include QGROUPBOX
@@ -56,128 +56,162 @@ namespace gui {
  *  The dialog will by default be modeless, unless you set 'modal' to
  *  TRUE to construct a modal dialog.
  */
-AnnotDialog::AnnotDialog(QSPage & p, QWidget* parent, const char* name, bool modal, WFlags fl )
-    : QDialog( parent, name, modal, fl ), page(p)
+AnnotDialog::AnnotDialog(QSPage & p, QWidget* parent, const char* name, bool modal, Qt::WindowFlags fl )
+    : QDialog( parent, fl ), page(p)
 {
-    if ( !name )
-	setName( "AnnotDialog" );
-    AnnotDialogLayout = new QGridLayout( this, 1, 1, 11, 6, "AnnotDialogLayout");
+//    if ( !name )
+//	setName( "AnnotDialog" );
 
-    layout8 = new QHBoxLayout( 0, 0, 6, "layout8");
+    setModal(modal);
+    AnnotDialogLayout = new QGridLayout( this/*, 1, 1, 11, 6, "AnnotDialogLayout"*/);
+    AnnotDialogLayout->setMargin( 11 );
+    AnnotDialogLayout->setSpacing( 6 );
+
+
+    layout8 = new QHBoxLayout;
+    layout8->setMargin(0);
+    layout8->setSpacing(6);
     spacer8 = new QSpacerItem( 50, 20, QSizePolicy::Expanding, QSizePolicy::Minimum );
     layout8->addItem( spacer8 );
 
-    okBtn = new QPushButton( this, "okBtn" );
+    okBtn = new QPushButton( this);
     layout8->addWidget( okBtn );
     spacer7 = new QSpacerItem( 40, 20, QSizePolicy::Fixed, QSizePolicy::Minimum );
     layout8->addItem( spacer7 );
 
-    cancelButton = new QPushButton( this, "cancelButton" );
+    cancelButton = new QPushButton( this);
     layout8->addWidget( cancelButton );
     spacer9 = new QSpacerItem( 50, 21, QSizePolicy::Expanding, QSizePolicy::Minimum );
     layout8->addItem( spacer9 );
 
     AnnotDialogLayout->addLayout( layout8, 1, 0 );
 
-    tabWidget3 = new QTabWidget( this, "tabWidget3" );
+    tabWidget3 = new QTabWidget( this);
 
-    tab = new QWidget( tabWidget3, "tab" );
-    tabLayout = new QGridLayout( tab, 1, 1, 11, 6, "tabLayout");
+    tab = new QWidget( tabWidget3);
+    tabLayout = new QGridLayout( tab/*, 1, 1, 11, 6, "tabLayout"*/);
+    tabLayout->setMargin(11);
+    tabLayout->setSpacing(6);
 
-    groupBox1 = new Q_GroupBox( tab, "groupBox1" );
-    groupBox1->setColumnLayout(0, Qt::Vertical );
+    groupBox1 = new QGroupBox( "groupBox1" ,tab );
+//    groupBox1->setColumnLayout(0, Qt::Vertical );  qt3
     groupBox1->layout()->setSpacing( 6 );
     groupBox1->layout()->setMargin( 11 );
-    groupBox1Layout = new QGridLayout( groupBox1->layout() );
+    groupBox1Layout = new QGridLayout( groupBox1 );
     groupBox1Layout->setAlignment( Qt::AlignTop );
 
-    layout21_2 = new QVBoxLayout( 0, 0, 6, "layout21_2");
+    layout21_2 = new QVBoxLayout;
+    layout21_2->setMargin(0);
+    layout21_2->setSpacing(6);
 
-    open = new QCheckBox( groupBox1, "open" );
+    open = new QCheckBox( groupBox1);
     layout21_2->addWidget( open );
 
-    layout16_2 = new QHBoxLayout( 0, 0, 6, "layout16_2");
+    layout16_2 = new QHBoxLayout;
+    layout16_2->setMargin(0);
+    layout16_2->setSpacing(6);
 
-    textLabel2 = new QLabel( groupBox1, "textLabel2" );
+    textLabel2 = new QLabel( groupBox1);
     layout16_2->addWidget( textLabel2 );
 
-    textContent = new QLineEdit( groupBox1, "textContent" );
+    textContent = new QLineEdit( groupBox1);
     layout16_2->addWidget( textContent );
     layout21_2->addLayout( layout16_2 );
 
-    layout18_2 = new QHBoxLayout( 0, 0, 6, "layout18_2");
+    layout18_2 = new QHBoxLayout;
+    layout18_2->setMargin(0);
+    layout18_2->setSpacing(6);
 
-    textLabel3 = new QLabel( groupBox1, "textLabel3" );
+    textLabel3 = new QLabel( groupBox1);
     textLabel3->setMidLineWidth( -6 );
     layout18_2->addWidget( textLabel3 );
 
-    iconName = new QComboBox( FALSE, groupBox1, "iconName" );
+    iconName = new QComboBox(groupBox1);
     layout18_2->addWidget( iconName );
     layout21_2->addLayout( layout18_2 );
 
-    layout19_2 = new QHBoxLayout( 0, 0, 6, "layout19_2");
+    layout19_2 = new QHBoxLayout;
+    layout19_2->setMargin(0);
+    layout19_2->setSpacing(6);
 
-    textLabel4_2 = new QLabel( groupBox1, "textLabel4_2" );
+    textLabel4_2 = new QLabel( groupBox1);
     textLabel4_2->setMargin( 0 );
     layout19_2->addWidget( textLabel4_2 );
 
-    state = new QComboBox( FALSE, groupBox1, "state" );
+    state = new QComboBox( groupBox1);
     layout19_2->addWidget( state );
     layout21_2->addLayout( layout19_2 );
 
-    layout20_2 = new QHBoxLayout( 0, 0, 6, "layout20_2");
+    layout20_2 = new QHBoxLayout;
+    layout20_2->setMargin( 0 );
+    layout20_2->setSpacing( 6 );
 
-    textLabel5_2 = new QLabel( groupBox1, "textLabel5_2" );
+    textLabel5_2 = new QLabel( groupBox1);
     layout20_2->addWidget( textLabel5_2 );
 
-    stateModel = new QComboBox( FALSE, groupBox1, "stateModel" );
+    stateModel = new QComboBox(groupBox1);
     layout20_2->addWidget( stateModel );
     layout21_2->addLayout( layout20_2 );
 
     groupBox1Layout->addLayout( layout21_2, 0, 0 );
 
     tabLayout->addWidget( groupBox1, 0, 0 );
-    tabWidget3->insertTab( tab, QString::fromLatin1("") );
+    tabWidget3->insertTab( -1,tab, QString::fromLatin1("") );
 
-    tab_2 = new QWidget( tabWidget3, "tab_2" );
-    tabLayout_2 = new QGridLayout( tab_2, 1, 1, 11, 6, "tabLayout_2");
+    tab_2 = new QWidget( tabWidget3);
+    tabLayout_2 = new QGridLayout( tab_2);
+    tabLayout_2->setMargin( 11);
+    tabLayout_2->setSpacing( 6 );
 
-    frame3 = new QFrame( tab_2, "frame3" );
+    frame3 = new QFrame( tab_2);
     frame3->setFrameShape( QFrame::StyledPanel );
     frame3->setFrameShadow( QFrame::Raised );
-    frame3Layout = new QGridLayout( frame3, 1, 1, 11, 6, "frame3Layout");
+    frame3Layout = new QGridLayout( frame3/*, 1, 1, 11, 6, "frame3Layout"*/);
+    frame3Layout->setMargin( 11);
+    frame3Layout->setSpacing( 6 );
 
-    layout17 = new QVBoxLayout( 0, 0, 6, "layout17");
+    layout17 = new QVBoxLayout;
+    layout17->setMargin( 0 );
+    layout17->setSpacing( 6 );
 
-    layout12 = new QVBoxLayout( 0, 0, 6, "layout12");
+    layout12 = new QVBoxLayout;
+    layout17->setMargin( 0 );
+    layout17->setSpacing( 6 );
 
-    layout16_2_2 = new QHBoxLayout( 0, 0, 6, "layout16_2_2");
 
-    textLabel2_3 = new QLabel( frame3, "textLabel2_3" );
+    layout16_2_2 = new QHBoxLayout;
+    layout16_2_2->setMargin( 0);
+    layout16_2_2->setSpacing( 6 );
+
+    textLabel2_3 = new QLabel( frame3);
     layout16_2_2->addWidget( textLabel2_3 );
 
-    linkContent = new QLineEdit( frame3, "linkContent" );
+    linkContent = new QLineEdit( frame3);
     layout16_2_2->addWidget( linkContent );
     layout12->addLayout( layout16_2_2 );
 
-    layout8_2 = new QHBoxLayout( 0, 0, 6, "layout8_2");
+    layout8_2 = new QHBoxLayout;
+    layout8_2->setMargin( 0);
+    layout8_2->setSpacing( 6 );
 
-    textLabel1 = new QLabel( frame3, "textLabel1" );
+    textLabel1 = new QLabel( frame3);
     textLabel1->setFrameShape( QLabel::NoFrame );
     layout8_2->addWidget( textLabel1 );
 
-    destination = new QLineEdit( frame3, "destination" );
+    destination = new QLineEdit( frame3);
     layout8_2->addWidget( destination );
     layout12->addLayout( layout8_2 );
 
-    layout9 = new QHBoxLayout( 0, 0, 6, "layout9");
+    layout9 = new QHBoxLayout;
+    layout9->setMargin( 0);
+    layout9->setSpacing( 6 );
 
-    textLabel2_2 = new QLabel( frame3, "textLabel2_2" );
+    textLabel2_2 = new QLabel( frame3);
     textLabel2_2->setFrameShape( QLabel::NoFrame );
     layout9->addWidget( textLabel2_2 );
 
-    highLight = new QComboBox( FALSE, frame3, "highLight" );
-    highLight->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, highLight->sizePolicy().hasHeightForWidth() ) );
+    highLight = new QComboBox(frame3);
+    highLight->setSizePolicy( QSizePolicy( static_cast<QSizePolicy::Policy>(0), static_cast<QSizePolicy::Policy>(0)) );
     layout9->addWidget( highLight );
     layout12->addLayout( layout9 );
     layout17->addLayout( layout12 );
@@ -187,7 +221,7 @@ AnnotDialog::AnnotDialog(QSPage & p, QWidget* parent, const char* name, bool mod
     frame3Layout->addLayout( layout17, 0, 0 );
 
     tabLayout_2->addWidget( frame3, 0, 0 );
-    tabWidget3->insertTab( tab_2, QString::fromLatin1("") );
+    tabWidget3->insertTab(-1 ,tab_2, QString::fromLatin1("") );
 
     AnnotDialogLayout->addWidget( tabWidget3, 0, 0 );
     languageChange();
@@ -223,44 +257,44 @@ AnnotDialog::~AnnotDialog()
  */
 void AnnotDialog::languageChange()
 {
-    setCaption(tr("Add new annotation"));
+    setWindowTitle(tr("Add new annotation"));
     okBtn->setText(QObject::tr("&Ok"));
-    okBtn->setAccel(QKeySequence("Alt+O"));
+    okBtn->setShortcut(QKeySequence("Alt+O"));
     cancelButton->setText(QObject::tr("&Cancel"));
-    cancelButton->setAccel(QKeySequence("Alt+C"));
+    cancelButton->setShortcut(QKeySequence("Alt+C"));
     groupBox1->setTitle(tr("Text Annotation"));
     open->setText(tr("&Open"));
-    open->setAccel(QKeySequence("Alt+O"));
+    open->setShortcut(QKeySequence("Alt+O"));
     textLabel2->setText(tr("Content"));
     textLabel3->setText(tr("Icon &Name"));
     iconName->clear();
-    iconName->insertItem(QString::null);
-    iconName->insertItem(tr("Comment"));
-    iconName->insertItem(tr("Help"));
-    iconName->insertItem(tr("Insert"));
-    iconName->insertItem(tr("Key"));
-    iconName->insertItem(tr("NewParagraph"));
-    iconName->insertItem(tr("Note"));
-    iconName->insertItem(tr("Paragraph"));
-    iconName->setCurrentItem(6);
+    iconName->addItem(QString::null);
+    iconName->addItem(tr("Comment"));
+    iconName->addItem(tr("Help"));
+    iconName->addItem(tr("Insert"));
+    iconName->addItem(tr("Key"));
+    iconName->addItem(tr("NewParagraph"));
+    iconName->addItem(tr("Note"));
+    iconName->addItem(tr("Paragraph"));
+    iconName->setCurrentIndex(6);
     textLabel4_2->setText(tr("&State"));
     state->clear();
-    state->insertItem(tr("Marked"));
-    state->insertItem(tr("Unmarked"));
+    state->addItem(tr("Marked"));
+    state->addItem(tr("Unmarked"));
     textLabel5_2->setText(tr("State &Model"));
     stateModel->clear();
-    stateModel->insertItem(tr("Marked"));
-    stateModel->insertItem(tr("Review"));
-    tabWidget3->changeTab(tab, tr("&Text Annotation"));
+    stateModel->addItem(tr("Marked"));
+    stateModel->addItem(tr("Review"));
+    tabWidget3->setTabText(1, tr("&Text Annotation"));
     textLabel2_3->setText(tr("Content"));
     textLabel1->setText(tr("&Destination"));
     textLabel2_2->setText(tr("&Highlight mode"));
     highLight->clear();
-    highLight->insertItem(tr("N - None"));
-    highLight->insertItem(tr("I - Invert"));
-    highLight->insertItem(tr("O - Outline"));
-    highLight->insertItem(tr("P - Push"));
-    tabWidget3->changeTab(tab_2, tr("&Link Annotation"));
+    highLight->addItem(tr("N - None"));
+    highLight->addItem(tr("I - Invert"));
+    highLight->addItem(tr("O - Outline"));
+    highLight->addItem(tr("P - Push"));
+    tabWidget3->setTabText(2, tr("&Link Annotation"));
 }
 
 void AnnotDialog::fillStates(const QString & current)
@@ -268,16 +302,16 @@ void AnnotDialog::fillStates(const QString & current)
         state->clear();
         if(current == "Marked")
         {
-                state->insertItem("Marked");
-                state->insertItem("Unmarked");
+                state->addItem( tr("Marked"));
+                state->addItem( tr("Unmarked"));
         }else
                 if(current == "Review")
                 {
-                        state->insertItem("Accepted");
-                        state->insertItem("Rejected");
-                        state->insertItem("Cancelled");
-                        state->insertItem("Completed");
-                        state->insertItem("None");
+                        state->addItem( tr("Accepted"));
+                        state->addItem( tr("Rejected"));
+                        state->addItem( tr("Cancelled"));
+                        state->addItem( tr("Completed"));
+                        state->addItem( tr("None"));
                 }
 }
 
@@ -297,12 +331,12 @@ using namespace boost;
         int dFlags=TextAnnotInitializer::FLAGS;
 
         // sets default values according form values
-        TextAnnotInitializer::OPEN=open->isChecked();
-        // FIXME this may be problem with encoding
-        TextAnnotInitializer::CONTENTS=textContent->text().ascii();
-        TextAnnotInitializer::NAME=iconName->currentText().ascii();
-        TextAnnotInitializer::STATE=state->currentText().ascii();
-        TextAnnotInitializer::STATEMODEL=stateModel->currentText().ascii();
+//        TextAnnotInitializer::OPEN=open->isChecked();
+//        // FIXME this may be problem with encoding
+//        TextAnnotInitializer::CONTENTS = textContent->text().toLatin1();
+//        TextAnnotInitializer::NAME = iconName->currentText().toLatin1();
+//        TextAnnotInitializer::STATE = state->currentText().toLatin1();
+//        TextAnnotInitializer::STATEMODEL = stateModel->currentText().toLatin1();
         // TODO support flags field
         //TextAnnotInitializer::FLAGS=dFlags;
 
@@ -335,9 +369,9 @@ using namespace boost;
 
         // sets default values according form values
         // FIXME this may be problem with encoding
-        LinkAnnotInitializer::CONTENTS=linkContent->text().ascii();
-        LinkAnnotInitializer::DEST=destination->text().ascii();
-        LinkAnnotInitializer::H=highLight->currentText().ascii();
+//        LinkAnnotInitializer::CONTENTS=linkContent->text().toLatin1();
+//        LinkAnnotInitializer::DEST=destination->text().toLatin1();
+//        LinkAnnotInitializer::H=highLight->currentText().toLatin1();
 
         // creates CAnnotation instance with factory, this should
         // use LinkAnnotInitializer with values which we have
@@ -356,7 +390,7 @@ void AnnotDialog::createAnnot()
 // checks currently set tab and creates annotation instance according
 // its setting
 // finally creates QSAnnotation and registers it to the page
-        int current=tabWidget3->currentPageIndex();
+        int current=tabWidget3->currentIndex();
         switch(current)
         {
                 // Text annotation

@@ -69,10 +69,10 @@ void idCollectorTC()
 		collector(Entry(pos, *i));
 	}
 
-	printf("container size=%u", container.size());
+    //printf("container size=%u", container.size());
 	printf("Elements are:");
 	for(Container::iterator i=container.begin(); i!=container.end(); i++)
-		printf(" %u", *i);
+        //printf(" %u", *i);
 	printf("\n");
 }
 

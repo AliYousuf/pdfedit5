@@ -24,7 +24,7 @@
 #ifndef __IMAGEWIDGET_H__
 #define __IMAGEWIDGET_H__
 
-#include <QtWidgets/QWidget>
+#include <QWidget>
 
 class QPaintEvent;
 class QPixmap;
@@ -39,7 +39,7 @@ namespace gui {
 class ImageWidget: public QWidget {
 Q_OBJECT
 public:
- ImageWidget(const QPixmap *p,QColor bgColor,QWidget *parent);
+ ImageWidget(const QPixmap *p/*,QColor bgColor*/,QWidget *parent);
  virtual ~ImageWidget();
 protected:
  virtual void paintEvent(QPaintEvent *e);

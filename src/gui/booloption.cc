@@ -28,9 +28,10 @@
 
 #include "booloption.h"
 #include "settings.h"
-#include <QtCore/QString>
-#include <QtWidgets/QCheckBox>
-#include <QtCore/QEvent>
+#include <QString>
+#include <QCheckBox>
+#include <QEvent>
+#include <QResizeEvent>
 
 namespace gui {
 
@@ -42,7 +43,7 @@ namespace gui {
  */
 BoolOption::BoolOption(const QString &_key,QWidget *parent/*=0*/,bool _defValue/*=false*/)
  : Option (_key,parent) {
- ed=new QCheckBox(this,"booloption_checkbox");
+ ed=new QCheckBox(this);
  connect(ed,SIGNAL(clicked()),this,SLOT(boolChange()));
  defValue=_defValue;
 }

@@ -31,10 +31,10 @@
 
 #include "dialogoption.h"
 #include <utils/debug.h>
-#include <QtCore/QString>
-#include <QtWidgets/QPushButton>
-#include <QtWidgets/QLineEdit>
-#include <QtCore/QEvent>
+#include <QString>
+#include <QPushButton>
+#include <QLineEdit>
+#include <QEvent>
 #include "settings.h"
 #include "util.h"
 
@@ -48,9 +48,11 @@ namespace gui {
  */
 DialogOption::DialogOption(const QString &_key/*=0*/,QWidget *parent/*=0*/,const QString &defValue/*=QString::null*/)
  : Option (_key,parent) {
- ed=new QLineEdit(this,"option_edit");
+ ed=new QLineEdit(this);
  setFocusProxy(ed);
- pb=new QPushButton("..",this,"option_pickbutton");
+// QPushButton ( const QString & text, QWidget * parent, const char * name = 0 ) qt3
+// QPushButton(const QString & text, QWidget * parent = 0)  qt5
+ pb=new QPushButton("..",this);
  if (!defValue.isNull()) ed->setText(defValue);
  connect(pb,SIGNAL(clicked()),this,SLOT(invokeDialog()));
  connect(ed,SIGNAL(textChanged(const QString&)),this,SLOT(enableChange(const QString&)));

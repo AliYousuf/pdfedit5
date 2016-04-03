@@ -28,7 +28,7 @@
 */
 
 #include <string>
-#include <qcstring.h>
+#include <QString>
 
 class QColor;
 class QString;

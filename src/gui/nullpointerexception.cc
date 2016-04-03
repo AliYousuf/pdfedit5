@@ -80,7 +80,7 @@ NullPointerException::~NullPointerException() throw() {
  For getting usable error message if the exception is not handled
  */
 const char* NullPointerException::what() const throw(){
- return _message.ascii();
+ return _message.toLatin1();
 }
 
 } // namespace gui

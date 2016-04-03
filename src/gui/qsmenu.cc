@@ -136,7 +136,7 @@ void QSMenu::addItemDef(QString def) {
    menu->setAccel(QKeySequence(param[1]),actionId+TMP_OFFSET);
   }
   if (param.count()>2 && param[2].length()>0) { //menu icon specified
-   const QIconSet *icon=msys->getIconSet(param[2]);
+   const QIcon *icon=msys->getIconSet(param[2]);
    if (icon) {
     menu->changeItem(actionId+TMP_OFFSET,*icon,itemName);
    } else {

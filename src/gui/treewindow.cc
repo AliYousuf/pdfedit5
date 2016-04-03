@@ -64,7 +64,8 @@ TODO:
  @param name Name of this widget (not used, just passed to QWidget)
  @param multi MultiTreeWindow holding this tree
 */
-TreeWindow::TreeWindow(MultiTreeWindow *multi,Base *base,QWidget *parent/*=0*/,const char *name/*=0*/):QWidget(parent,name) {
+
+TreeWindow::TreeWindow(MultiTreeWindow *multi,Base *base,QWidget *parent/*=0*/,const char *name/*=0*/):QWidget(parent/*,name*/) {
  QBoxLayout *l=new QVBoxLayout(this);
 #ifdef DRAGDROP
  tree=new DragListView(this);//DragListView for drag and drop
@@ -309,10 +310,10 @@ void TreeWindow::init(boost::shared_ptr<pdfobjects::CPdf> pdfDoc,const QString &
  assert(pdfDoc);
  clear();
  rootName=fileName;
- setUpdatesEnabled( FALSE );
+ setUpdatesEnabled( false );
  TreeItemAbstract *rootItem=new TreeItemPdf(data,pdfDoc,tree,fileName);
- rootItem->setOpen(TRUE);
- setUpdatesEnabled( TRUE );
+ rootItem->setOpen(true);
+ setUpdatesEnabled( true );
 }
 
 /**
@@ -323,10 +324,10 @@ void TreeWindow::init(boost::shared_ptr<pdfobjects::CPdf> pdfDoc,const QString &
 void TreeWindow::init(boost::shared_ptr<pdfobjects::IProperty> doc,const QString &pName/*=QString::null*/) {
  clear();
  if (doc.get()) {
-  setUpdatesEnabled( FALSE );
+  setUpdatesEnabled( false );
   TreeItemAbstract *rootItem=TreeItem::create(data,tree,doc,pName);
-  rootItem->setOpen(TRUE);
-  setUpdatesEnabled( TRUE );
+  rootItem->setOpen(true);
+  setUpdatesEnabled( true );
  }
 }
 
@@ -338,10 +339,10 @@ void TreeWindow::init(boost::shared_ptr<pdfobjects::IProperty> doc,const QString
 void TreeWindow::init(boost::shared_ptr<pdfobjects::CContentStream> cs,const QString &pName/*=QString::null*/) {
  clear();
  if (cs.get()) {
-  setUpdatesEnabled( FALSE );
+  setUpdatesEnabled( false );
   TreeItemAbstract *rootItem=new TreeItemContentStream(data,tree,cs,pName);
-  rootItem->setOpen(TRUE);
-  setUpdatesEnabled( TRUE );
+  rootItem->setOpen(true);
+  setUpdatesEnabled( true );
  }
 }
 
@@ -352,16 +353,16 @@ void TreeWindow::init(boost::shared_ptr<pdfobjects::CContentStream> cs,const QSt
 */
 void TreeWindow::init(const OperatorVector &vec,const QString &pName/*=QString::null*/) {
  clear();
- setUpdatesEnabled( FALSE );
+ setUpdatesEnabled( false );
  TreeItemAbstract *rootItem=new TreeItemOperatorContainer(data,tree,vec,pName);
- rootItem->setOpen(TRUE);
+ rootItem->setOpen(true);
  //Select all items except the root
  Q_ListViewItem *sel=rootItem->itemBelow();
  while (sel) {
   tree->setSelected(sel,true);
   sel=sel->itemBelow();
  }
- setUpdatesEnabled( TRUE );
+ setUpdatesEnabled( true );
 }
 
 /**
@@ -372,9 +373,9 @@ void TreeWindow::init(const OperatorVector &vec,const QString &pName/*=QString::
 */
 void TreeWindow::init(const AnnotationVector &vec,boost::shared_ptr<pdfobjects::CPage> page,const QString &pName/*=QString::null*/) {
  clear();
- setUpdatesEnabled( FALSE );
+ setUpdatesEnabled( false );
  TreeItemAbstract *rootItem=new TreeItemAnnotationContainer(data,tree,vec,page,pName);
- rootItem->setOpen(TRUE);
+ rootItem->setOpen(true);
  //Select all items except the root
  Q_ListViewItem *sel=rootItem->itemBelow();
  Q_ListViewItem *sel2=NULL;
@@ -384,7 +385,7 @@ void TreeWindow::init(const AnnotationVector &vec,boost::shared_ptr<pdfobjects::
    sel2=sel->firstChild();
    if (sel2) {
     tree->setOpen(sel2,true);
-    tree->setSelected(sel2,true);
+    tree->setFirstItemColumnSpanned(sel2,true);
    }
   }
   sel=sel->nextSibling();
@@ -392,7 +393,7 @@ void TreeWindow::init(const AnnotationVector &vec,boost::shared_ptr<pdfobjects::
  if (sel2) {
   emit itemSelected();
  }
- setUpdatesEnabled( TRUE );
+ setUpdatesEnabled( true );
 }
 
 /** Resets the tree to be empty and show nothing */

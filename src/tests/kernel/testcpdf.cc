@@ -1169,7 +1169,7 @@ public:
 		Object oArray;
 		oArray.initArray(xref1);
 		Object oStream;
-		Stream *str= new MemStream((char*)malloc(sizeof(char)*10), 0, 10, &oDict, true);
+        Stream *str;/*= new MemStream((char*)malloc(sizeof(char)*10), 0, 10, &oDict, true);*/
 		oStream.initStream(str);
 
 		printf("\tNULL value is not allowed\n");

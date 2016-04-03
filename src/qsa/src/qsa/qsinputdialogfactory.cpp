@@ -699,7 +699,7 @@ void QSGroupBox::add(QSWidget *widget)
  	grid->addWidget(label, row, 0);
  	grid->addWidget(w, row, 1);
     } else {
-	grid->addMultiCellWidget(w, row, row, 0, 1);
+    grid->addWidget(w, row, row, 0, 1);
     }
 
     if ( w && w->isA("QRadioButton") ) {
@@ -842,7 +842,7 @@ void QSDialogPrivate::add(QSWidget *widget)
  	grid->addWidget(label, row, 0);
  	grid->addWidget(w, row, 1);
     } else {
-	grid->addMultiCellWidget(w, row, row, 0, 1);
+    grid->addWidget(w, row, row, 0, 1);
     }
 
     if ( w && w->isA("QRadioButton") ) {
@@ -867,7 +867,7 @@ QSDialog::~QSDialog()
     delete d;
 }
 
-void QSDialog::setTitle(const QString &title) { d->setCaption(title); }
+void QSDialog::setTitle(const QString &title) { d->setWindowTitle(title); }
 QString QSDialog::title() const { return d->caption(); }
 void QSDialog::setWidth(int width){ d->width = width; }
 int QSDialog::width() const { return d->width; }
@@ -881,7 +881,7 @@ void QSDialog::newTab(const QString &label)
     if ( !d->tabWidget ) {
 	d->tabWidget = new QTabWidget(d);
 	int row = d->grid->numRows();
-	d->grid->addMultiCellWidget(d->tabWidget, row, row, 0, 1);
+    d->grid->addWidget(d->tabWidget, row, row, 0, 1);
     }
     QWidget *w = new QWidget;
     d->tabWidget->addTab(w, label);

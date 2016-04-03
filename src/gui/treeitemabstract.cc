@@ -35,7 +35,8 @@
 #include "util.h"
 #include <assert.h>
 #include <utils/debug.h>
-#include <QtCore/QString>
+#include <QString>
+#include <QListView>
 
 namespace gui {
 
@@ -48,7 +49,7 @@ using namespace std;
  @param parent Q_ListView in which to put item
  @param after Item after which this one will be inserted
  */
-TreeItemAbstract::TreeItemAbstract(const QString &itemName,TreeData *_data,Q_ListView *parent,Q_ListViewItem *after/*=NULL*/):Q_ListViewItem(parent,after) {
+TreeItemAbstract::TreeItemAbstract(const QString &itemName,TreeData *_data, QTreeWidget *parent,Q_ListViewItem *after/*=NULL*/):Q_ListViewItem(parent, after) {
  nameId=itemName;
  data=_data;
  initAbs();
@@ -62,7 +63,7 @@ TreeItemAbstract::TreeItemAbstract(const QString &itemName,TreeData *_data,Q_Lis
  @param parent Q_ListViewItem which is parent of this object
  @param after Item after which this one will be inserted
  */
-TreeItemAbstract::TreeItemAbstract(const QString &itemName,TreeData *_data,Q_ListViewItem *parent,Q_ListViewItem *after/*=NULL*/):Q_ListViewItem(parent,after) {
+TreeItemAbstract::TreeItemAbstract(const QString &itemName,TreeData *_data,Q_ListViewItem *parent,Q_ListViewItem *after/*=NULL*/):Q_ListViewItem(parent) {
  nameId=itemName;
  data=_data;
  initAbs();
@@ -74,10 +75,10 @@ TreeItemAbstract::TreeItemAbstract(const QString &itemName,TreeData *_data,Q_Lis
 void TreeItemAbstract::initAbs() {
  parsed=false;
  assert(data);
- Q_ListView *lv=listView();
+ QTreeWidgetItem  *lv;//= this->currentItem();
  assert(lv);
- assert(lv->parentWidget());
- rootWindow=dynamic_cast<TreeWindow*>(lv->parentWidget());
+ assert(lv->parent());
+ rootWindow=dynamic_cast<TreeWindow*>(lv->parent());
  assert(rootWindow);
 }
 
@@ -100,7 +101,7 @@ void TreeItemAbstract::setOpen(bool open) {
   parsed=true;
   reload(false);//And now get the subitems!
  }
- Q_ListViewItem::setOpen(open);
+ //Q_ListViewItem::setOpen(open); QT3
 }
 
 /**
@@ -137,16 +138,16 @@ bool TreeItemAbstract::deepReload(__attribute__((unused)) const QString &childNa
 void TreeItemAbstract::reload(bool reloadThis/*=true*/,bool forceReload/*=false*/) {
  if (reloadThis) reloadSelf();
  if (!parsed) { //Not yet parsed, just check for presence of any childs
-  setExpandable(haveChild());
+  //QTreeWidgetItem::setExpanded(haveChild()); Qt3
   return;
  }
- Q_Dict<Q_ListViewItem> newItems;
+ Q_Dict<QString, Q_ListViewItem* > newItems;
  QMap<QString,ChildType> newTypes;
 
  QStringList childs=getChildNames();
  Q_ListViewItem *before=NULL;
  for (QStringList::Iterator it=childs.begin();it!=childs.end();++it) {
-  Q_ListViewItem *x=items.take(*it);	//Return and remove item from list of current
+  Q_ListViewItem *x;/*=items.take(*it);*/	//Return and remove item from list of current
   ChildType typ=getChildType(*it);
   if (forceReload) { //Just create that child again
    deleteChild(x);	//Delete the old item
@@ -167,7 +168,7 @@ void TreeItemAbstract::reload(bool reloadThis/*=true*/,bool forceReload/*=false*
    }
   }
   if (x) { //Item is already there -> move it to right place
-   x->moveItem(before);
+   //x->itemBelow(before); Fixed Qt3
    TreeItemAbstract *xa=dynamic_cast<TreeItemAbstract*>(x);
    if (xa) { //It is TreeItemAbstract -> reload it (recursively)
     xa->reload();
@@ -183,8 +184,8 @@ void TreeItemAbstract::reload(bool reloadThis/*=true*/,bool forceReload/*=false*
    }
   }
   before=x; //Place new items after this one
-  newItems.replace(*it,x);
-  newTypes.replace(*it,typ);
+  //newItems.replace(*it,x);
+  //newTypes.replace(*it,typ);  Fixed Qt3
  }
 
  //Erase unused childs
@@ -198,8 +199,14 @@ void TreeItemAbstract::reload(bool reloadThis/*=true*/,bool forceReload/*=false*
 /** Erase all items in current item dictionary. After returning, the item dictionary is empty */
 void TreeItemAbstract::eraseItems() {
  //Delete each item in "items"
- Q_DictIterator<Q_ListViewItem> it(items);
- for(;it.current();++it) deleteChild(it.current());
+ Q_DictIterator<QString,Q_ListViewItem*> it(items);
+    while (it.hasNext()) {
+
+//        qDebug() << i.key() << ": " << i.value();
+        deleteChild(it.value());
+                it.next();
+    }
+
  //Clear lists
  items.clear();
  types.clear();
@@ -228,22 +235,22 @@ Q_ListViewItem* TreeItemAbstract::child(const QString &name) {
  @param tree Q_ListView in which this item resides
 */
 void TreeItemAbstract::unSelect(Q_ListView *tree) {
- if (!tree->isSelected(this)) return;
+ //if (!tree->isSelected()) return;
  //It is selected
- Q_ListViewItem* it=nextSibling();
- if (it) { //Next in same level
-  tree->setSelected(it,true);
-  return;
- }
- it=itemAbove();
- if (it) { //Previous in same level or parent
-  tree->setSelected(it,true);
-  return;
- }
+// Q_ListViewItem* it=nextSibling();
+// if (it) { //Next in same level
+//  //tree->setSelected(true);
+//  return;
+// }
+ //it=itemAbove(tree);
+ //if (it) { //Previous in same level or parent
+  //tree->setSelected(true);
+ //return;
+ //}
  //Next in other level
- it=itemBelow();
- if (it) { //Previous in same level or parent
-  tree->setSelected(it,true);
+// it=itemBelow();
+// if (it) { //Previous in same level or parent
+ // tree->setSelected(true);
   return;
  }
  guiPrintDbg(debug::DBG_INFO,"Removed last item from tree");
@@ -258,11 +265,11 @@ void TreeItemAbstract::unSelect(Q_ListView *tree) {
 void TreeItemAbstract::moveAllChildsFrom(TreeItemAbstract* src) {
  //Delete all local items
  eraseItems();
- Q_ListViewItem *otherChild;
- while ((otherChild=src->firstChild())) {	 //For each child
+ QTreeWidgetItem*otherChild;
+ while (src->isFirstItemColumnSpanned(otherChild)) {	 //For each child
   guiPrintDbg(debug::DBG_DBG,"Relocating child");
-  src->takeItem(otherChild);
-  insertItem(otherChild);
+//  src->removeItemWidget(otherChild);   look Here Fixed QT3
+  addTopLevelItem(otherChild);
  }
  //Copy dictionaries to this items
  items=src->items;
@@ -319,7 +326,7 @@ TreeItemAbstract::~TreeItemAbstract() {
   //Notify root window - if that item is selected, unselect it
   rootWindow->deleteNotify(this);
   //unselect self
-  data->tree()->setSelected(this,false);
+  data->tree()->setSelected(false);
  }
  //Notify MultiTreeWindow about deletion of itself
 // guiPrintDbg(debug::DBG_DBG,"Item deleting" << intptr_t(this));
@@ -331,9 +338,9 @@ TreeItemAbstract::~TreeItemAbstract() {
  @param selected true to select, false to unselect
 */
 void TreeItemAbstract::setSelect(bool selected) {
- Q_ListView *lv=listView();
+ Q_ListView *lv=currentItem();
  assert(lv);
- lv->setSelected(this,selected);
+ lv->setSelected(selected);
 }
 
 /**

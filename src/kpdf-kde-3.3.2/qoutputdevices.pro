@@ -32,7 +32,10 @@ contains( E_RELEASE, yes ) {
 
 #Needed for Qt4. Qt3's Qmake does not know this variable, so it is ignored
 #Note Qt4 is not (yet) supported
-QT += qt3support
+QT += core gui widgets
+
+INCLUDEPATH += /usr/include/poppler 
+LIBS +=-L/usr/include/poppler -lpoppler
 
 # include headers from kernel and used by kernel
 INCPATH += $(MANDATORY_PATHS)

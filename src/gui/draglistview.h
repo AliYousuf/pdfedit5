@@ -54,7 +54,7 @@ private:
 class DragListView : public QListView {
  Q_OBJECT
 public:
- DragListView(QWidget *parent,const char *name=0,WFlags f=0);
+ DragListView(QWidget *parent,const char *name=0,QListView f=0);
  ~DragListView();
 signals:
  /**

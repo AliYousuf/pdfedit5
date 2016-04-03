@@ -26,7 +26,7 @@
 
 #include "qtcompat.h"
 #include QLISTVIEW
-#include <QtWidgets/QWidget>
+#include <QWidget>
 #include <kernel/cobject.h>
 #include <kernel/cpage.h>
 #include "types.h"

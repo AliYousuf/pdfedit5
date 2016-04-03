@@ -32,13 +32,15 @@
 #include "selectpagesdialog.h"
 #include "pdfutil.h"
 #include "util.h"
-#include <QtCore/QVariant>
-#include <QtWidgets/QPushButton>
-#include <QtWidgets/QLabel>
-#include <QtWidgets/QLineEdit>
-#include <QtWidgets/QFrame>
+#include <QVariant>
+#include <QPushButton>
+#include <QLabel>
+#include <QLineEdit>
+#include <QFrame>
 #include QLISTBOX
-#include <QtWidgets/QLayout>
+#include <QListWidget>
+#include <QListWidgetItem>
+#include <QLayout>
 #include <kernel/cpdf.h>
 
 //=====================================================================================
@@ -68,11 +70,11 @@ namespace {
 			//
 		public:
 			ListItem (Position pos, Q_ListBox* _parent, const QString& text = QString::null)
-				: Q_ListBoxText(_parent, text),_position(pos) 	{}
+                : Q_ListBoxText(_parent),_position(pos) 	{}
 			ListItem (Position pos, const QString&  text = QString::null)
-				: Q_ListBoxText(text),_position(pos) {}
+                : Q_ListBoxText(),_position(pos) {}
 			ListItem (Position pos, Q_ListBox* _parent, const QString& text, Q_ListBoxItem* after)
-				: Q_ListBoxText(_parent, text, after),_position(pos) {}
+                : Q_ListBoxText(_parent),_position(pos) {}
 
 			/**
 			 * Returns position.
@@ -93,9 +95,14 @@ namespace {
 //
 // Constructor
 //
-SelectPagesDialog::SelectPagesDialog (const QString& filename) : QDialog (NULL, NULL, false, 0) {
-	setName ("Select page dialog.");
-    SelectPagesDialogLayout = new QGridLayout( this, 1, 1, 11, 6, "SelectPagesDialogLayout");
+SelectPagesDialog::SelectPagesDialog (const QString& filename) : QDialog (0, 0) {
+//	setName ("Select page dialog.");
+    setModal(false);
+    SelectPagesDialogLayout = new QGridLayout( this/*, 1, 1, 11, 6, "SelectPagesDialogLayout"*/);
+    SelectPagesDialogLayout->setMargin(11);
+    SelectPagesDialogLayout->setSpacing(6);
+    //QGridLayout ( QWidget * parent, int nRows = 1, int nCols = 1
+     //       , int margin = 11, int space = 6, const char * name = 0 ) qt3
 
     layout48 = new QVBoxLayout();
     layout48->setMargin(0);
@@ -106,46 +113,50 @@ SelectPagesDialog::SelectPagesDialog (const QString& filename) : QDialog (NULL, 
 
     textLabel1 = new QLabel( this);
 	textLabel1->setText (filename);
-    textLabel1->setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, textLabel1->sizePolicy().hasHeightForWidth() ) );
+    textLabel1->setSizePolicy( QSizePolicy(static_cast<QSizePolicy::Policy>(0), static_cast<QSizePolicy::Policy>(0)) );
     layout27->addWidget( textLabel1 );
     layout48->addLayout( layout27 );
-    layout47 = new QHBoxLayout();
+    layout47 = new QHBoxLayout;
     layout47->setMargin(0);
     layout47->setSpacing(6);
 	// selectedList
-    selectedList = new Q_ListBox( this, "selectedList" );
-    selectedList->setEnabled( FALSE );
+    selectedList = new Q_ListBox( this);
+    selectedList->setEnabled( false );
     layout47->addWidget( selectedList );
-    layout4 = new QVBoxLayout( 0, 0, 6, "layout4");
+    layout4 = new QVBoxLayout;
+    layout4->setMargin(0);
+    layout4->setSpacing(6);
 	// Add buttno
-    addBtn = new QPushButton( this, "addBtn" );
-    addBtn->setEnabled( FALSE );
+    addBtn = new QPushButton( this);
+    addBtn->setEnabled( false );
     layout4->addWidget( addBtn );
 	// Remove button
-    removeBtn = new QPushButton( this, "removeBtn" );
-    removeBtn->setEnabled( FALSE );
+    removeBtn = new QPushButton( this);
+    removeBtn->setEnabled( false );
     layout4->addWidget( removeBtn );
     spacer3 = new QSpacerItem( 20, 20, QSizePolicy::Minimum, QSizePolicy::Expanding );
     layout4->addItem( spacer3 );
     layout47->addLayout( layout4 );
 	// Filelist
-    originalList = new Q_ListBox( this, "originalList" );
-    originalList->setEnabled( FALSE );
+    originalList = new Q_ListBox( this);
+    originalList->setEnabled( false );
     originalList->setFrameShape( Q_ListBox::StyledPanel );
-    originalList->setSelectionMode( Q_ListBox::Extended );
+    originalList->setSelectionMode( Q_ListBox::ExtendedSelection );
     layout47->addWidget( originalList );
     layout48->addLayout( layout47 );
-    layout6 = new QHBoxLayout( 0, 0, 5, "layout6");
+    layout6 = new QHBoxLayout;
+    layout6->setMargin(0);
+    layout6->setSpacing(5);
     spacer5 = new QSpacerItem( 61, 21, QSizePolicy::Expanding, QSizePolicy::Minimum );
     layout6->addItem( spacer5 );
 	// Ok button
-    okBtn = new QPushButton( this, "okBtn" );
-    okBtn->setEnabled( FALSE );
+    okBtn = new QPushButton( this);
+    okBtn->setEnabled( false );
     layout6->addWidget( okBtn );
     spacer6 = new QSpacerItem( 41, 21, QSizePolicy::Expanding, QSizePolicy::Minimum );
     layout6->addItem( spacer6 );
 	// Cancel button
-    cancelBtn = new QPushButton( this, "cancelBtn" );
+    cancelBtn = new QPushButton( this);
     layout6->addWidget( cancelBtn );
     layout48->addLayout( layout6 );
     SelectPagesDialogLayout->addLayout( layout48, 0, 0 );
@@ -163,8 +174,8 @@ SelectPagesDialog::SelectPagesDialog (const QString& filename) : QDialog (NULL, 
     connect( selectedList, SIGNAL( currentChanged(QListBoxItem*) ), this, SLOT( selectedList_changed(QListBoxItem*) ) );
     connect( originalList, SIGNAL( currentChanged(QListBoxItem*) ), this, SLOT( originalList_changed(QListBoxItem*) ) );
 #else
-    connect( selectedList, SIGNAL( currentChanged(Q3ListBoxItem*) ), this, SLOT( selectedList_changed(Q3ListBoxItem*) ) );
-    connect( originalList, SIGNAL( currentChanged(Q3ListBoxItem*) ), this, SLOT( originalList_changed(Q3ListBoxItem*) ) );
+    connect( selectedList, SIGNAL( currentItemChanged(QListBoxItem*, QListBoxItem*) ), this, SLOT( selectedList_changed(QListBoxItem*) ) );
+    connect( originalList, SIGNAL( currentItemChanged(QListBoxItem*, QListBoxItem*) ), this, SLOT( originalList_changed(QListBoxItem*) ) );
 #endif
 
     // tab order
@@ -176,9 +187,9 @@ SelectPagesDialog::SelectPagesDialog (const QString& filename) : QDialog (NULL, 
 	// Init pages
 	//
 	init (filename);
-	selectedList->setEnabled (TRUE);
-	originalList->setEnabled (TRUE);
-    okBtn->setEnabled (TRUE);
+    selectedList->setEnabled (true);
+    originalList->setEnabled (true);
+    okBtn->setEnabled (true);
 }
 
 
@@ -190,11 +201,11 @@ SelectPagesDialog::SelectPagesDialog (const QString& filename) : QDialog (NULL, 
 //
 //
 void SelectPagesDialog::originalList_changed (Q_ListBoxItem* item) {
-	ListItem * listItem=dynamic_cast<ListItem *>(item);
+    ListItem * listItem=dynamic_cast<ListItem *>(item);
 	if(listItem==NULL)
 			return;
 			
-	addBtn->setEnabled(TRUE);
+    addBtn->setEnabled(true);
 }
 
 
@@ -203,7 +214,7 @@ void SelectPagesDialog::originalList_changed (Q_ListBoxItem* item) {
 //
 void SelectPagesDialog::selectedList_changed (Q_ListBoxItem*) {
 	// allways enable add button when something is selected
-	removeBtn->setEnabled(TRUE);
+    removeBtn->setEnabled(true);
 }
 
 //
@@ -211,45 +222,45 @@ void SelectPagesDialog::selectedList_changed (Q_ListBoxItem*) {
 //
 void SelectPagesDialog::addBtn_clicked () {
 	int oldPos=-1;
-	ListItem * oldItem=NULL;
+    ListItem * oldItem=NULL;
 
 	for(int i=originalList->count()-1; i>=0; --i)
 	{
 			// skips unselected items
-			if(!originalList->isSelected(i))
-					continue;
+            //if(!originalList->isSelected()) Fixed on QT3
+            //		continue;
 			
-			ListItem * fileItem=dynamic_cast<ListItem *>(originalList->item(i));
+            ListItem * fileItem=dynamic_cast<ListItem *>(originalList->item(i));
 			if(!fileItem)
 					continue;
 
 			// removes fileItem from originalList
-			oldPos=originalList->index (fileItem);
+            oldPos=originalList->row(fileItem);
 			oldItem=fileItem;
-			originalList->takeItem(fileItem);
+            originalList->removeItemWidget(fileItem);
 			if(oldPos>=(int)(originalList->count()))
 					// correction for last item in list
 					--oldPos;
 
 			// gets position of selected item in selectedList
-			int pos=selectedList->currentItem();
+            int pos=selectedList->currentRow();
 
 			// insert fileItem before currently selected node in selectedList
-			selectedList->insertItem(fileItem, (pos<0)?0:pos);
-			selectedList->setSelected(fileItem, FALSE);
+            selectedList->insertItem((pos<0)?0:pos,fileItem);
+            //selectedList->setSelected(false); Fixed Qt3
 	}
 
 	// sets new currentItem in selectedList to oldItem
 	if(oldItem)
 	{
 			selectedList->setCurrentItem(oldItem);
-			selectedList->setSelected(oldItem, TRUE);
+            //selectedList->setSelected(true); Fixed qt3
 	}
 
 	// nothing has left in originalList box
 	if(!originalList->count())
 	{
-			addBtn->setEnabled(FALSE);
+            addBtn->setEnabled(false);
 			return;
 	}
 	
@@ -257,8 +268,8 @@ void SelectPagesDialog::addBtn_clicked () {
 	// to selectedList
 	if(oldPos>=0)
 	{
-			originalList->setCurrentItem(oldPos);
-			originalList->setSelected(oldPos, TRUE);
+            originalList->setCurrentRow(oldPos);
+            //originalList->setSelected(true);  Fixed QT3
 			return;
 	}
 }
@@ -268,24 +279,24 @@ void SelectPagesDialog::addBtn_clicked () {
 // !source code copied from MergeDialog!
 //
 void SelectPagesDialog::removeBtn_clicked () {
-	if(selectedList->selectedItem())
-	{
-			ListItem * mergeItem=dynamic_cast<ListItem *>(selectedList->selectedItem());
+//	if(selectedList->selectedItem()) Fixed Qt3
+//	{
+            ListItem * mergeItem=dynamic_cast<ListItem *>(selectedList->currentItem());
 			if(!mergeItem)
 			{
 					// nothing selected
-					removeBtn->setEnabled(FALSE);
+                    removeBtn->setEnabled(false);
 					return;
 			}
 			// removes item from selectedList
-			int oldPos=selectedList->index(mergeItem);
-			selectedList->takeItem(mergeItem);
+            int oldPos=selectedList->row(mergeItem);
+            selectedList->removeItemWidget(mergeItem);
 
 			// insert to correct position in originalList - keeps ordering
 			int pos=0;
 			while(Q_ListBoxItem * item=originalList->item(pos))
 			{
-					ListItem * i=dynamic_cast<ListItem *>(item);
+                    ListItem * i=dynamic_cast<ListItem *>(item);
 					if(!i)
 							// bad type, this should not happen
 							continue;
@@ -297,12 +308,12 @@ void SelectPagesDialog::removeBtn_clicked () {
 			}
 
 			// inserts mergeItem to correct position and unselect it
-			originalList->insertItem(mergeItem, pos);
+            originalList->insertItem(pos, mergeItem);
 			originalList->setCurrentItem(mergeItem);
-			selectedList->setCurrentItem(oldPos);
-			selectedList->setSelected(oldPos, TRUE);
-	}else
-			removeBtn->setEnabled(FALSE);
+            selectedList->setCurrentRow(oldPos);
+            //selectedList->setSelected(true);   Fixed QT3
+//	}else
+//            removeBtn->setEnabled(false); Fixed QT3
 }
 
 
@@ -311,9 +322,9 @@ void SelectPagesDialog::removeBtn_clicked () {
 //
 
 template<typename Container> void SelectPagesDialog::getResult (Container& cont) const {
-	for (size_t pos = 0; pos < selectedList->count(); ++pos)
+    for (int pos = 0; pos < selectedList->count(); ++pos)
 	{
-		ListItem* item = dynamic_cast<ListItem*>(selectedList->item(pos));
+        ListItem* item = dynamic_cast<ListItem*>(selectedList->item(pos));
 		if(!item)
 			continue;
 		cont.push_back (item->position());
@@ -326,9 +337,9 @@ template void SelectPagesDialog::getResult<list<size_t> > (list<size_t>& cont) c
 //
 //
 void SelectPagesDialog::init (size_t count) {
- char itemLabel[128];
+ QString itemLabel;
  for(size_t i=1; i<=count; ++i) {
-  snprintf(itemLabel, 127, "Page%d", (int)i);
+  snprintf(itemLabel.toLatin1().data(), 127, "Page%d", (int)i);
   new ListItem (i, originalList, itemLabel);
  }
 
@@ -353,14 +364,14 @@ bool SelectPagesDialog::init (const QString& fileName) {
 		e.getMessage(err);
 		//TODO: some messagebox?
 		guiPrintDbg(debug::DBG_DBG,"Failed opening document " << err);
-		return false;
+        return false;
 	}
 
 	// Init pages
 	init (document->getPageCount());
 	document.reset();
 	
-	return true;
+    return true;
 }
 
 
@@ -368,14 +379,14 @@ bool SelectPagesDialog::init (const QString& fileName) {
 //  Sets the strings of the subwidgets using the current language.
 //
 void SelectPagesDialog::languageChange() {
- setCaption(tr("Convert pdf to xml"));
- textLabel1->setText(tr(textLabel1->text()));
+ setWindowTitle(tr("Convert pdf to xml"));
+ textLabel1->setText("tr(textLabel1->text()) Fixed SelectPagesDialog.cc:383");
  addBtn->setText("<<");
  removeBtn->setText(">>");
  cancelBtn->setText(QObject::tr("&Cancel"));
- cancelBtn->setAccel(QKeySequence("Alt+C"));
+ cancelBtn->setShortcut(QKeySequence("Alt+C"));
  okBtn->setText(QObject::tr("&Ok"));
- okBtn->setAccel(QKeySequence("Alt+O"));
+ okBtn->setShortcut(QKeySequence("Alt+O"));
 }
 
 //=====================================================================================
